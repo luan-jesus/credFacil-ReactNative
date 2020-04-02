@@ -4,11 +4,13 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Text
+  Text,
+  Alert
 } from 'react-native';
 
 import GeneralStatusBarColor from '../components/GeneralStatusBarColorStyles';
 import LoadingScreen from '../components/LoadingScreen';
+import api from '../services/api';
 
 export default function Login({ navigation }) {
   const [user, setUser] = useState({ username: '', password: '' });
@@ -16,31 +18,24 @@ export default function Login({ navigation }) {
 
   async function Login() {
     setLoading(true);
-    const requestOptions = {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(user)
-    };
 
-    let apireq = await fetch(
-      'http://192.168.0.2:5000/auth/login',
-      requestOptions
-    ).catch(e => alert(e.message));
-
-    //console.log(apireq);
-    if (apireq.status === 401) {
-      // Unauthorized
-      alert('Usuário ou senha incorretos');
-    } else if (apireq.status === 200) {
-      navigation.navigate('Home');
-    }
+    await api.post('auth/login', user)
+      .then(() => navigation.navigate('Home'))
+      .catch(error => {
+        if (error.message === 'Request failed with status code 401'){
+          Alert.alert('Erro de autenticação', 'Usuário ou senha incorretos')
+        } else {
+          Alert.alert('Erro', error.message);
+        }
+      });
+      
     setLoading(false);
   }
 
   return (
     <>
       <GeneralStatusBarColor backgroundColor="#fff" barStyle="dark-content" />
-      <LoadingScreen loading={loading}/>
+      <LoadingScreen loading={loading} />
       <View style={styles.header}>
         <Text style={styles.title}>
           <Text style={{ color: '#02983e' }}>Cred</Text>

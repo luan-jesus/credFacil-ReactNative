@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import Header from '../components/Header';
 import LoadingScreen from '../components/LoadingScreen';
+import api from '../services/api';
 
 
 export default function Customers({ navigation }) {
@@ -14,10 +15,9 @@ export default function Customers({ navigation }) {
 
   useEffect(() => {
     async function loadData() {
-      let customers = await fetch('http://192.168.0.2:5000/clientes');
-      let data = await customers.json();
-
-      setCustomer(...customer, data);
+      await api.get('/clientes')
+        .then(response => setCustomer(...customer, response.data))
+        .catch(error => alert(error.message));
       setLoading(false);
     }
     loadData();
