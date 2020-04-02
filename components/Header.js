@@ -3,24 +3,31 @@ import { StyleSheet, View, Text } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton } from 'react-native-gesture-handler';
 
-import GeneralStatusBarColor from './GeneralStatusBarColorStyles'
+import GeneralStatusBarColor from './GeneralStatusBarColorStyles';
 
-const Header = ({ navigation, name }) => (
-  <>
-  <GeneralStatusBarColor backgroundColor="#ff9538" barStyle="light-content"/>
-  <View style={styles.header}>
-    <RectButton style={styles.actionButton} onPress={() => navigation.goBack()}>
-      <Ionicons name="md-arrow-back" size={28} color={'#fff'} />
-    </RectButton>
-    <Text style={styles.pageName}>{name}</Text>
-    <RectButton style={styles.actionButton}>
-      <Ionicons name="md-add" size={28} color={'#fff'} />
-    </RectButton>
-  </View>
-  </>
-);
+export default function Header({ navigation, name, rightButton, rightClick }) {
 
-export default Header;
+  function rightPress(click) {
+    if (typeof click === "function"){
+      click();
+    }
+  }
+
+  return (
+    <>
+      <GeneralStatusBarColor backgroundColor="#ff9538" barStyle="light-content"/>
+      <View style={styles.header}>
+        <RectButton style={styles.actionButton} onPress={() => navigation.goBack()}>
+          <Ionicons name="md-arrow-back" size={28} color={'#fff'} />
+        </RectButton>
+        <Text style={styles.pageName}>{name}</Text>
+        <RectButton style={styles.actionButton} onPress={() => rightPress(rightClick)}>
+          <Ionicons name={rightButton} size={28} color={'#fff'} />
+        </RectButton>
+      </View>
+    </>
+  );
+}
 
 const styles = StyleSheet.create({
   header: {
@@ -44,6 +51,6 @@ const styles = StyleSheet.create({
 
   pageName: {
     fontSize: 20,
-    color: '#fff',
-  },
+    color: '#fff'
+  }
 });

@@ -9,6 +9,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Login from './screens/LoginScreen';
 import Home from './screens/HomeScreen';
 import Customers from './screens/CustomersScreen';
+import CustomerDetailScreen from './screens/CustomerDetailScreen';
+import CustomerNewScreen from './screens/CustomerNewScreen';
 
 const Stack = createStackNavigator();
 
@@ -30,7 +32,7 @@ export default function App(props) {
         // Load fonts
         await Font.loadAsync({
           ...Ionicons.font,
-          'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
+          'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf')
         });
       } catch (e) {
         // We might want to provide this error information to an error reporting service
@@ -51,13 +53,17 @@ export default function App(props) {
       <View style={styles.container}>
         {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
         <NavigationContainer initialState={initialNavigationState}>
-          <Stack.Navigator initialRouteName="Login"
-          screenOptions={{
-            headerShown: false
-          }}>
+          <Stack.Navigator
+            initialRouteName="Login"
+            screenOptions={{
+              headerShown: false
+            }}
+          >
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="Customers" component={Customers} />
+            <Stack.Screen name="CustomerDetailScreen" component={CustomerDetailScreen}/>
+            <Stack.Screen name="CustomerNewScreen" component={CustomerNewScreen}/>
           </Stack.Navigator>
         </NavigationContainer>
       </View>
@@ -68,6 +74,6 @@ export default function App(props) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-  },
+    backgroundColor: '#fff'
+  }
 });

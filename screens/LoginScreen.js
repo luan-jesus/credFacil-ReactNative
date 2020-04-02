@@ -4,17 +4,18 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  Text,
-  StatusBar
+  Text
 } from 'react-native';
 
 import GeneralStatusBarColor from '../components/GeneralStatusBarColorStyles';
+import LoadingScreen from '../components/LoadingScreen';
 
 export default function Login({ navigation }) {
   const [user, setUser] = useState({ username: '', password: '' });
+  const [loading, setLoading] = useState(false);
 
   async function Login() {
-    // alert (user.username + ' ' + user.password);
+    setLoading(true);
     const requestOptions = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -33,11 +34,13 @@ export default function Login({ navigation }) {
     } else if (apireq.status === 200) {
       navigation.navigate('Home');
     }
+    setLoading(false);
   }
 
   return (
     <>
-      <GeneralStatusBarColor backgroundColor="#fff" barStyle="dark-content"/>
+      <GeneralStatusBarColor backgroundColor="#fff" barStyle="dark-content" />
+      <LoadingScreen loading={loading}/>
       <View style={styles.header}>
         <Text style={styles.title}>
           <Text style={{ color: '#02983e' }}>Cred</Text>
@@ -65,13 +68,24 @@ export default function Login({ navigation }) {
 }
 
 const styles = StyleSheet.create({
+  loadingScreen: {
+    position: 'absolute',
+    zIndex: 99,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    display: 'none'
+  },
   header: {
     alignItems: 'center',
     flexDirection: 'column',
     justifyContent: 'flex-end',
     marginBottom: -70,
     backgroundColor: '#ffffff',
-    height: 200,
+    height: 200
   },
   container: {
     alignItems: 'center',

@@ -1,30 +1,54 @@
-import React from 'react';
-import {TextInput} from 'react-native';
-import {
-  Text,
-  StyleSheet,
-  View,
-} from 'react-native';
-
-import Header from '../components/Header'
+import React, { useState, useEffect } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { TextInput } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
+import Header from '../components/Header';
+import LoadingScreen from '../components/LoadingScreen';
+
+
 export default function Customers({ navigation }) {
+  const [customer, setCustomer] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      let customers = await fetch('http://192.168.0.2:5000/clientes');
+      let data = await customers.json();
+
+      setCustomer(...customer, data);
+      setLoading(false);
+    }
+    loadData();
+  }, []);
+
   return (
     <>
-      <Header navigation={navigation} name='Clientes'/>
+      <Header navigation={navigation} name="Clientes" rightButton='md-add' rightClick={() => navigation.navigate('CustomerNewScreen')}/>
+      <LoadingScreen loading={loading}/>
       <View style={styles.filter}>
-        <TextInput style={styles.textFilter} placeholder='Cliente'></TextInput>
+        <TextInput style={styles.textFilter} placeholder="Cliente"></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        <View style={styles.itemList}>
-          <Text>Magazine Luiza</Text>
-        </View>
+        {customer.map(val => {
+          return (
+            <ItemList key={val.id} name={val.name} customerId={val.id} navigation={navigation}/>
+          );
+        })}
       </ScrollView>
     </>
   );
 }
 
+function ItemList({ name, customerId, navigation }) {
+  return (
+    <TouchableOpacity style={styles.itemList} onPress={() => navigation.navigate('CustomerDetailScreen', { customerId: customerId })}  >
+      <Text style={styles.itemName}>{name}</Text>
+      <Ionicons name="ios-arrow-round-forward" size={22} />
+    </TouchableOpacity>
+  );
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -37,7 +61,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10
   },
   textFilter: {
-    fontSize: 22,
+    fontSize: 22
   },
   CustomerList: {
     marginTop: 10
@@ -45,6 +69,14 @@ const styles = StyleSheet.create({
   itemList: {
     flexDirection: 'row',
     paddingVertical: 10,
-    paddingHorizontal: 5
+    paddingHorizontal: 5,
+    borderBottomWidth: 1,
+    borderBottomColor: '#adadad',
+    marginBottom: 10,
+    marginHorizontal: 5,
+    justifyContent: 'space-between'
+  },
+  itemName: {
+    fontSize: 16
   }
 });
