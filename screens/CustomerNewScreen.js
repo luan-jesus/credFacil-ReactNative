@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Header from '../components/Header';
 import api from '../services/api';
 import LoadingScreen from '../components/LoadingScreen';
+import SaveButton from '../components/SaveButton';
 
 export default function CustomerNewScreen({ navigation }) {
   const [customer, setCustomer] = useState({ name: '' });
@@ -40,8 +41,6 @@ export default function CustomerNewScreen({ navigation }) {
       <Header
         navigation={navigation}
         name="Clientes"
-        rightButton="ios-checkmark-circle-outline"
-        rightClick={() => CreateCustomer()}
       />
       <LoadingScreen loading={loading}/>
       <ScrollView style={styles.container}>
@@ -53,6 +52,7 @@ export default function CustomerNewScreen({ navigation }) {
           ></TextInput>
         </View>
       </ScrollView>
+      <SaveButton display={customer.name != ''} onClick={() => CreateCustomer()} />
     </>
   );
 }

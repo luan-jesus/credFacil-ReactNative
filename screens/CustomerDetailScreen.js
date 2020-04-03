@@ -7,12 +7,14 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Header from '../components/Header';
 import LoadingScreen from '../components/LoadingScreen';
 import SaveButton from '../components/SaveButton';
+import LoanItem from '../components/LoanItem'
 import api from '../services/api';
 
 
 export default function CustomerDetailScreen({ navigation, route }) {
   const [customer, setCustomer] = useState([]);
   const [originalCustomer, setOriginalCustomer] = useState([]);
+  const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -30,11 +32,16 @@ export default function CustomerDetailScreen({ navigation, route }) {
     }
   }, [customer, originalCustomer])
 
+  useEffect(() => {
+    console.log(loans);
+  }, [loans]);
+
   async function loadData() {
     await api.get('/clientes/' + route.params?.customerId)
       .then(response => {
-        setCustomer(response.data[0]);
-        setOriginalCustomer(response.data[0]);
+        setCustomer(response.data.cliente);
+        setOriginalCustomer(response.data.cliente);
+        setLoans(response.data.emprestimos);
       })
       .catch(error=> alert(error.message));
       
@@ -74,6 +81,8 @@ export default function CustomerDetailScreen({ navigation, route }) {
     ]);
   }
 
+  const emprestimo = JSON.parse('{"id": 1, "Cliente": "","valorEmprestimo": 2400.00, "valorPago": 1300.00, "numParcelas": 24, "numParcelasPagas": 13,"dataInicio": "2019-01-11T02:00:00.000Z","status": 1,"createdAt": "2020-04-03T17:14:33.262Z","updatedAt": "2020-04-03T17:14:33.262Z"}');
+
   return (
     <>
       <Header navigation={navigation} name='Clientes' rightButton='ios-trash' rightClick={() => DeleteRecord()}/>
@@ -94,6 +103,12 @@ export default function CustomerDetailScreen({ navigation, route }) {
         <View style={styles.field}>
           <Text>Parcelas atrasadas:</Text>
           <TextInput style={styles.textField} value='0' editable={false}></TextInput>
+        </View>
+        <View style={styles.loans}>
+          {loans.map(loan => (
+            <LoanItem emprestimo={loan} key={loan.idEmprestimo}/>
+          ))}
+
         </View>
       </ScrollView>
       <SaveButton display={isEditMode} onClick={() => SaveChanges()} />
@@ -120,5 +135,9 @@ const styles = StyleSheet.create({
     borderColor: '#dbdbdb',
     borderWidth: 1,
     paddingHorizontal: 5
+  },
+  loans: {
+    margin: 5,
+    paddingHorizontal: 15,
   }
 });

@@ -11,6 +11,7 @@ import Home from './screens/HomeScreen';
 import Customers from './screens/CustomersScreen';
 import CustomerDetailScreen from './screens/CustomerDetailScreen';
 import CustomerNewScreen from './screens/CustomerNewScreen';
+import LoansScreen from './screens/LoansScreen.js'
 
 const Stack = createStackNavigator();
 
@@ -64,6 +65,7 @@ export default function App(props) {
             <Stack.Screen name="Customers" component={Customers} />
             <Stack.Screen name="CustomerDetailScreen" component={CustomerDetailScreen}/>
             <Stack.Screen name="CustomerNewScreen" component={CustomerNewScreen}/>
+            <Stack.Screen name="LoansScreen" component={LoansScreen}/>
           </Stack.Navigator>
         </NavigationContainer>
       </View>

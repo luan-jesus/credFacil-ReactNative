@@ -26,7 +26,7 @@ export default function Home({ navigation }) {
         <OptionButton
           icon="ios-mail"
           label="Emprestimos"
-          onPress={() =>{}}
+          onPress={() =>{navigation.navigate('LoansScreen')}}
         />
       </ScrollView>
     </>
