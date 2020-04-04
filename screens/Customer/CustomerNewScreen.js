@@ -3,10 +3,10 @@ import { TextInput } from 'react-native';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import Header from '../components/Header';
-import api from '../services/api';
-import LoadingScreen from '../components/LoadingScreen';
-import SaveButton from '../components/SaveButton';
+import Header from '../../components/Header';
+import api from '../../services/api';
+import LoadingScreen from '../../components/LoadingScreen';
+import SaveButton from '../../components/SaveButton';
 
 export default function CustomerNewScreen({ navigation }) {
   const [customer, setCustomer] = useState({ name: '' });

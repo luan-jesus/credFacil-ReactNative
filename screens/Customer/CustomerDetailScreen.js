@@ -4,11 +4,11 @@ import { TextInput } from 'react-native';
 import { Text, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import Header from '../components/Header';
-import LoadingScreen from '../components/LoadingScreen';
-import SaveButton from '../components/SaveButton';
-import LoanItem from '../components/LoanItem'
-import api from '../services/api';
+import Header from '../../components/Header';
+import LoadingScreen from '../../components/LoadingScreen';
+import SaveButton from '../../components/SaveButton';
+import LoanItem from '../../components/LoanItem'
+import api from '../../services/api';
 
 
 export default function CustomerDetailScreen({ navigation, route }) {

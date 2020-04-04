@@ -4,19 +4,19 @@ import { TextInput } from 'react-native';
 import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 
-import Header from '../components/Header';
-import LoadingScreen from '../components/LoadingScreen';
-import api from '../services/api';
+import Header from '../../components/Header';
+import LoadingScreen from '../../components/LoadingScreen';
+import api from '../../services/api';
 
 
-export default function Customers({ navigation }) {
-  const [customer, setCustomer] = useState([]);
+export default function Users({ navigation }) {
+  const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
-      await api.get('/clientes')
-        .then(response => setCustomer(...customer, response.data))
+      await api.get('/users')
+        .then(response => setUser(...user, response.data))
         .catch(error => alert(error.message));
       setLoading(false);
     }
@@ -25,15 +25,15 @@ export default function Customers({ navigation }) {
 
   return (
     <>
-      <Header navigation={navigation} name="Clientes" rightButton='md-add' rightClick={() => navigation.navigate('CustomerNewScreen')}/>
+      <Header navigation={navigation} name="Usuários" rightButton='md-add' rightClick={() => navigation.navigate('CustomerNewScreen')}/>
       <LoadingScreen loading={loading}/>
       <View style={styles.filter}>
-        <TextInput style={styles.textFilter} placeholder="Cliente"></TextInput>
+        <TextInput style={styles.textFilter} placeholder="Nome"></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        {customer.map(val => {
+        {user.map(val => {
           return (
-            <ItemList key={val.id} name={val.name} customerId={val.id} navigation={navigation}/>
+            <ItemList key={val.id} name={val.name} userId={val.id} authLevel={val.authLevel} navigation={navigation}/>
           );
         })}
       </ScrollView>
@@ -41,10 +41,24 @@ export default function Customers({ navigation }) {
   );
 }
 
-function ItemList({ name, customerId, navigation }) {
+function authName(authLevel) {
+  switch(authLevel){
+    case 1:
+      return 'Motoboy';
+      break;
+    case 2:
+      return 'Gerente';
+      break;
+  }
+}
+
+function ItemList({ name, userId, authLevel, navigation }) {
   return (
-    <TouchableOpacity style={styles.itemList} onPress={() => navigation.navigate('CustomerDetailScreen', { customerId: customerId })}  >
-      <Text style={styles.itemName}>{name}</Text>
+    <TouchableOpacity style={styles.itemList} onPress={() => navigation.navigate('CustomerDetailScreen', { customerId: userId })}  >
+      <View style={{flexDirection: 'column'}}>
+        <Text style={styles.itemName}>{name}</Text>
+        <Text>{authName(authLevel)} </Text>
+      </View>
       <Ionicons name="ios-arrow-round-forward" size={22} />
     </TouchableOpacity>
   );
@@ -68,15 +82,17 @@ const styles = StyleSheet.create({
   },
   itemList: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingVertical: 10,
     paddingHorizontal: 5,
     borderBottomWidth: 1,
     borderBottomColor: '#adadad',
     marginBottom: 10,
     marginHorizontal: 5,
-    justifyContent: 'space-between'
   },
   itemName: {
-    fontSize: 16
+    fontSize: 20,
+    marginBottom: 5
   }
 });

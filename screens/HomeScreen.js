@@ -1,18 +1,14 @@
 import React from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import {
-  Text,
-  StyleSheet,
-  View,
-} from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 
-import Header from '../components/Header'
+import Header from '../components/Header';
 
 export default function Home({ navigation }) {
   return (
     <>
-      <Header navigation={navigation} name='Inicio'/>
+      <Header navigation={navigation} name="Inicio" />
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -20,13 +16,41 @@ export default function Home({ navigation }) {
         <OptionButton
           icon="ios-contacts"
           label="Clientes"
-          onPress={() => {navigation.navigate('Customers')}}
+          onPress={() => {
+            navigation.navigate('Customers');
+          }}
         />
 
         <OptionButton
           icon="ios-mail"
-          label="Emprestimos"
-          onPress={() =>{navigation.navigate('LoansScreen')}}
+          label="Emprestimos Ativos"
+          onPress={() => {
+            navigation.navigate('LoansScreen');
+          }}
+        />
+
+        <OptionButton
+          icon="md-time"
+          label="Histórico de Emprestimos"
+          onPress={() => {
+            // navigation.navigate('LoansScreen');
+          }}
+        />
+
+        <OptionButton
+          icon="ios-bicycle"
+          label="Motoboys"
+          onPress={() => {
+            navigation.navigate('MotoboysScreen');
+          }}
+        />
+
+        <OptionButton
+          icon="ios-bicycle"
+          label="Usuários"
+          onPress={() => {
+            navigation.navigate('UsersScreen');
+          }}
         />
       </ScrollView>
     </>
@@ -54,13 +78,13 @@ function OptionButton({ icon, label, onPress, isLastOption }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   contentContainer: {
-    paddingTop: 15
+    paddingTop: 15,
   },
   optionIconContainer: {
-    marginRight: 12
+    marginRight: 12,
   },
   option: {
     backgroundColor: '#fdfdfd',
@@ -68,14 +92,14 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
     borderWidth: StyleSheet.hairlineWidth,
     borderBottomWidth: 0,
-    borderColor: '#ededed'
+    borderColor: '#ededed',
   },
   lastOption: {
-    borderBottomWidth: StyleSheet.hairlineWidth
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   optionText: {
     fontSize: 15,
     alignSelf: 'flex-start',
-    marginTop: 1
-  }
+    marginTop: 1,
+  },
 });

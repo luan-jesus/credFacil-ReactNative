@@ -8,10 +8,19 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Login from './screens/LoginScreen';
 import Home from './screens/HomeScreen';
-import Customers from './screens/CustomersScreen';
-import CustomerDetailScreen from './screens/CustomerDetailScreen';
-import CustomerNewScreen from './screens/CustomerNewScreen';
-import LoansScreen from './screens/LoansScreen.js'
+
+import Customers from './screens/Customer/CustomersScreen';
+import CustomerDetailScreen from './screens/Customer/CustomerDetailScreen';
+import CustomerNewScreen from './screens/Customer/CustomerNewScreen';
+
+import LoansScreen from './screens/LoansScreen.js';
+
+import MotoboysScreen from './screens/Motoboy/MotoboysScreen';
+import MotoboyDetailScreen from './screens/Motoboy/MotoboyDetailScreen';
+
+import UsersScreen from './screens/User/UsersScreen';
+import UserDetailScreen from './screens/User/UserDetailScreen';
+import UserNewScreen from './screens/User/UserNewScreen';
 
 const Stack = createStackNavigator();
 
@@ -66,6 +75,11 @@ export default function App(props) {
             <Stack.Screen name="CustomerDetailScreen" component={CustomerDetailScreen}/>
             <Stack.Screen name="CustomerNewScreen" component={CustomerNewScreen}/>
             <Stack.Screen name="LoansScreen" component={LoansScreen}/>
+            <Stack.Screen name="MotoboysScreen" component={MotoboysScreen}/>
+            <Stack.Screen name="MotoboyDetailScreen" component={MotoboyDetailScreen}/>
+            <Stack.Screen name="UsersScreen" component={UsersScreen}/>
+            <Stack.Screen name="UserDetailScreen" component={UserDetailScreen}/>
+            <Stack.Screen name="UserNewScreen" component={UserNewScreen}/>
           </Stack.Navigator>
         </NavigationContainer>
       </View>

@@ -3,11 +3,12 @@ import {
   StyleSheet,
   View,
   Text,
+  ActivityIndicator
 } from 'react-native';
 
 export default function LoadingScreen({ loading }) {
   return (
-    <>{loading ? <View style={styles.loadingScreen}><Text>Loading</Text></View> : null}</>
+    <>{loading ? <View style={styles.loadingScreen}><ActivityIndicator size="large" color="#ff9538" /></View> : null}</>
   );
 }
 
@@ -19,6 +20,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.25)',
     justifyContent: 'center',
     alignItems: 'center',
     display: 'none'
