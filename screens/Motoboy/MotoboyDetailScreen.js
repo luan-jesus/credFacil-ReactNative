@@ -6,6 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
+import TextField from '../../components/TextField'; 
 import api from '../../services/api';
 
 export default function MotoboyDetailScreen({ navigation, route }) {
@@ -32,30 +33,21 @@ export default function MotoboyDetailScreen({ navigation, route }) {
       <Header navigation={navigation} name="Motoboys" />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
-        <View style={styles.field}>
-          <Text>Id do Motoboy:</Text>
-          <TextInput
-            style={styles.textField}
-            value={user?.id?.toString()}
-            editable={false}
-          ></TextInput>
-        </View>
-        <View style={styles.field}>
-          <Text>Nome:</Text>
-          <TextInput
-            style={[styles.textField]}
-            value={user?.name}
-            editable={false}
-          ></TextInput>
-        </View>
-        <View style={styles.field}>
-          <Text>Total recebido Hoje:</Text>
-          <TextInput
-            style={styles.textField}
-            value={user?.totalRecebido?.toFixed(2).replace('.', ',')}
-            editable={false}
-          ></TextInput>
-        </View>
+        <TextField
+          label="Id:"
+          value={user.id?.toString()}
+          editable={false}
+        />
+        <TextField
+          label="Nome:"
+          value={user?.name}
+          editable={false}
+        />
+        <TextField
+          label="Total recebido Hoje:"
+          value={user.totalRecebido ? user.totalRecebido?.toFixed(2).replace('.', ',') : '0,00'}
+          editable={false}
+        />
       </ScrollView>
     </>
   );
@@ -66,19 +58,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 15,
-  },
-  field: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
-    marginHorizontal: 20,
-  },
-  textField: {
-    backgroundColor: '#dbdbdb',
-    width: 140,
-    textAlign: 'right',
-    borderColor: '#dbdbdb',
-    borderWidth: 1,
-    paddingHorizontal: 5,
   },
 });

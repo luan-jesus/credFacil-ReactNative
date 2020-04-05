@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Platform, StatusBar, StyleSheet, View } from 'react-native';
+import { Platform, StatusBar, StyleSheet, View, Text } from 'react-native';
 import { SplashScreen } from 'expo';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
 import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, Assets } from '@react-navigation/stack';
 
 import Login from './screens/LoginScreen';
 import Home from './screens/HomeScreen';
@@ -13,7 +13,7 @@ import Customers from './screens/Customer/CustomersScreen';
 import CustomerDetailScreen from './screens/Customer/CustomerDetailScreen';
 import CustomerNewScreen from './screens/Customer/CustomerNewScreen';
 
-import LoansScreen from './screens/LoansScreen.js';
+import LoansScreen from './screens/Loan/LoansScreen.js';
 
 import MotoboysScreen from './screens/Motoboy/MotoboysScreen';
 import MotoboyDetailScreen from './screens/Motoboy/MotoboyDetailScreen';
@@ -30,6 +30,8 @@ export default function App(props) {
   //const containerRef = React.useRef();
   //const { getInitialState } = useLinking(containerRef);
 
+  
+
   // Load any resources or data that we need prior to rendering the app
   React.useEffect(() => {
     async function loadResourcesAndDataAsync() {
@@ -42,7 +44,9 @@ export default function App(props) {
         // Load fonts
         await Font.loadAsync({
           ...Ionicons.font,
-          'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf')
+          'space-mono': require('./assets/fonts/SpaceMono-Regular.ttf'),
+          'Montserrat-Regular': require('./assets/fonts/Montserrat-Regular.ttf'),
+          'Montserrat-ExtraBoldItalic' : require('./assets/fonts/Montserrat-ExtraBoldItalic.ttf')
         });
       } catch (e) {
         // We might want to provide this error information to an error reporting service

@@ -8,16 +8,16 @@ import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
 import api from '../../services/api';
 
-
 export default function Users({ navigation }) {
   const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadData() {
-      await api.get('/users')
-        .then(response => setUser(...user, response.data))
-        .catch(error => alert(error.message));
+      await api
+        .get('/users')
+        .then((response) => setUser(...user, response.data))
+        .catch((error) => alert(error.message));
       setLoading(false);
     }
     loadData();
@@ -25,15 +25,26 @@ export default function Users({ navigation }) {
 
   return (
     <>
-      <Header navigation={navigation} name="Usuários" rightButton='md-add' rightClick={() => navigation.navigate('CustomerNewScreen')}/>
-      <LoadingScreen loading={loading}/>
+      <Header
+        navigation={navigation}
+        name="Usuários"
+        rightButton="md-add"
+        rightClick={() => navigation.navigate('UserNewScreen')}
+      />
+      <LoadingScreen loading={loading} />
       <View style={styles.filter}>
         <TextInput style={styles.textFilter} placeholder="Nome"></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        {user.map(val => {
+        {user.map((val) => {
           return (
-            <ItemList key={val.id} name={val.name} userId={val.id} authLevel={val.authLevel} navigation={navigation}/>
+            <ItemList
+              key={val.id}
+              name={val.name}
+              userId={val.id}
+              authLevel={val.authLevel}
+              navigation={navigation}
+            />
           );
         })}
       </ScrollView>
@@ -42,7 +53,7 @@ export default function Users({ navigation }) {
 }
 
 function authName(authLevel) {
-  switch(authLevel){
+  switch (authLevel) {
     case 1:
       return 'Motoboy';
       break;
@@ -54,8 +65,13 @@ function authName(authLevel) {
 
 function ItemList({ name, userId, authLevel, navigation }) {
   return (
-    <TouchableOpacity style={styles.itemList} onPress={() => navigation.navigate('CustomerDetailScreen', { customerId: userId })}  >
-      <View style={{flexDirection: 'column'}}>
+    <TouchableOpacity
+      style={styles.itemList}
+      onPress={() =>
+        navigation.navigate('UserDetailScreen', { userId: userId })
+      }
+    >
+      <View style={{ flexDirection: 'column' }}>
         <Text style={styles.itemName}>{name}</Text>
         <Text>{authName(authLevel)} </Text>
       </View>
@@ -67,18 +83,18 @@ function ItemList({ name, userId, authLevel, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
   },
   filter: {
     backgroundColor: '#ececec',
     paddingHorizontal: 5,
-    paddingVertical: 10
+    paddingVertical: 10,
   },
   textFilter: {
-    fontSize: 22
+    fontSize: 22,
   },
   CustomerList: {
-    marginTop: 10
+    marginTop: 10,
   },
   itemList: {
     flexDirection: 'row',
@@ -93,6 +109,6 @@ const styles = StyleSheet.create({
   },
   itemName: {
     fontSize: 20,
-    marginBottom: 5
-  }
+    marginBottom: 5,
+  },
 });

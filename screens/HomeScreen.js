@@ -46,7 +46,7 @@ export default function Home({ navigation }) {
         />
 
         <OptionButton
-          icon="ios-bicycle"
+          icon="ios-body"
           label="Usuários"
           onPress={() => {
             navigation.navigate('UsersScreen');

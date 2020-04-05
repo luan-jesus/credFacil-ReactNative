@@ -7,6 +7,7 @@ import Header from '../../components/Header';
 import api from '../../services/api';
 import LoadingScreen from '../../components/LoadingScreen';
 import SaveButton from '../../components/SaveButton';
+import TextField from '../../components/TextField'; 
 
 export default function CustomerNewScreen({ navigation }) {
   const [customer, setCustomer] = useState({ name: '' });
@@ -44,13 +45,11 @@ export default function CustomerNewScreen({ navigation }) {
       />
       <LoadingScreen loading={loading}/>
       <ScrollView style={styles.container}>
-        <View style={styles.field}>
-          <Text>Nome do Cliente:</Text>
-          <TextInput
-            style={styles.textField}
-            onChangeText={text => setCustomer({ ...customer, name: text })}
-          ></TextInput>
-        </View>
+        <TextField
+          label="Nome:"
+          editable={true}
+          onChange={(text) => setCustomer({ ...customer, name: text })}
+        />
       </ScrollView>
       <SaveButton display={customer.name != ''} onClick={() => CreateCustomer()} />
     </>
@@ -62,16 +61,5 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 15
-  },
-  field: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
-    marginHorizontal: 20
-  },
-  textField: {
-    backgroundColor: '#f5f5f5',
-    width: 140,
-    textAlign: 'right'
   }
 });

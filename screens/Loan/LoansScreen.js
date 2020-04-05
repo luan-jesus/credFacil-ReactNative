@@ -6,50 +6,35 @@ import { ScrollView } from 'react-native-gesture-handler';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
+import LoanItem from '../../components/LoanItem'
 import api from '../../services/api';
 
 
-export default function Customers({ navigation }) {
-  const [customer, setCustomer] = useState([]);
-  const [customerContacts, setCustomerContacts] = useState([]);
+export default function Loans({ navigation }) {
+  const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
-
-  function updateSearch(text) {
-
-    var filtered = customer.filter(contact => {
-      return contact.name.toLowerCase().indexOf(text.toLowerCase()) !== -1;
-    });
-
-    setCustomerContacts(filtered);
-  }
 
   useEffect(() => {
     async function loadData() {
-      await api.get('/clientes')
-        .then(response => setCustomer(...customer, response.data))
+      await api.get('/emprestimos')
+        .then(response => setLoans(...loans, response.data))
         .catch(error => alert(error.message));
       setLoading(false);
     }
     loadData();
   }, []);
-  
-  useEffect(() => {
-    setCustomerContacts(customer);
-  }, [customer])
 
   return (
     <>
-      <Header navigation={navigation} name="Clientes" rightButton='md-add' rightClick={() => navigation.navigate('CustomerNewScreen')}/>
+      <Header navigation={navigation} name="Emprestimos" rightButton='md-add' rightClick={() => navigation.navigate('CustomerNewScreen')}/>
       <LoadingScreen loading={loading}/>
       <View style={styles.filter}>
-        <TextInput style={styles.textFilter} placeholder="Cliente" onChangeText={text => updateSearch(text)}></TextInput>
+        <TextInput style={styles.textFilter} placeholder="Cliente"></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        {customerContacts.map(val => {
-          return (
-            <ItemList key={val.id} name={val.name} customerId={val.id} navigation={navigation}/>
-          );
-        })}
+         {loans.map(loan => (
+            <LoanItem emprestimo={loan} key={Math.random()}/>
+          ))}
       </ScrollView>
     </>
   );

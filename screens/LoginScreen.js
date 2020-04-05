@@ -7,6 +7,7 @@ import {
   Text,
   Alert
 } from 'react-native';
+import * as Font from 'expo-font';
 
 import GeneralStatusBarColor from '../components/GeneralStatusBarColorStyles';
 import LoadingScreen from '../components/LoadingScreen';
@@ -38,8 +39,8 @@ export default function Login({ navigation }) {
       <LoadingScreen loading={loading} />
       <View style={styles.header}>
         <Text style={styles.title}>
-          <Text style={{ color: '#02983e' }}>Cred</Text>
-          <Text style={{ color: '#eb8018' }}>Fácil</Text>
+          <Text style={{ color: '#02983e', fontFamily: 'Montserrat-ExtraBoldItalic' }}>Cred</Text>
+          <Text style={{ color: '#eb8018', fontFamily: 'Montserrat-ExtraBoldItalic' }}>Fácil</Text>
         </Text>
       </View>
       <View style={styles.container}>

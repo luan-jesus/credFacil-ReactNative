@@ -7,7 +7,8 @@ import { ScrollView } from 'react-native-gesture-handler';
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
 import SaveButton from '../../components/SaveButton';
-import LoanItem from '../../components/LoanItem'
+import LoanItem from '../../components/LoanItem';
+import TextField from '../../components/TextField';
 import api from '../../services/api';
 
 
@@ -88,22 +89,27 @@ export default function CustomerDetailScreen({ navigation, route }) {
       <Header navigation={navigation} name='Clientes' rightButton='ios-trash' rightClick={() => DeleteRecord()}/>
       <LoadingScreen loading={loading}/>
       <ScrollView style={styles.container}>
-        <View style={styles.field}>
-          <Text>Id do Cliente:</Text>
-          <TextInput style={styles.textField} value={customer.id?.toString()} editable={false}></TextInput>
-        </View>
-        <View style={styles.field}>
-          <Text>Nome do Cliente:</Text>
-          <TextInput style={[styles.textField, {backgroundColor: '#f5f5f5'}]} value={customer.name} onChangeText={text => setCustomer({ ...customer, name: text })}></TextInput>
-        </View>
-        <View style={styles.field}>
-          <Text>Emprestimos Ativos:</Text>
-          <TextInput style={styles.textField} value='0' editable={false}></TextInput>
-        </View>
-        <View style={styles.field}>
-          <Text>Parcelas atrasadas:</Text>
-          <TextInput style={styles.textField} value='0' editable={false}></TextInput>
-        </View>
+        <TextField
+          label="Id:"
+          value={customer.id?.toString()}
+          editable={false}
+        />
+        <TextField
+          label="Nome:"
+          value={customer.name}
+          editable={true}
+          onChange={text => setCustomer({ ...customer, name: text })}
+        />
+        <TextField
+          label="Emprestimos ativos:"
+          value={'0'}
+          editable={false}
+        />
+        <TextField
+          label="Parcelas atrasadas:"
+          value={'0'}
+          editable={false}
+        />
         <View style={styles.loans}>
           {loans.map(loan => (
             <LoanItem emprestimo={loan} key={loan.idEmprestimo}/>
