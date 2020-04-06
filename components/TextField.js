@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
   field: {
     flexDirection: 'column',
     marginVertical: 10,
-    marginHorizontal: 20,
+    flex: 1
   },
   title: {
     fontSize: 16,

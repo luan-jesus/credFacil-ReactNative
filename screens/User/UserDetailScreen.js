@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { TextInput } from 'react-native';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import ModalDropdown from 'react-native-modal-dropdown';
+import Axios from 'axios';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
 import SaveButton from '../../components/SaveButton';
-import TextField from '../../components/TextField'; 
+import TextField from '../../components/TextField';
 import api from '../../services/api';
+
+const CancelToken = Axios.CancelToken;
+let cancel;
 
 export default function CustomerDetailScreen({ navigation, route }) {
   const [user, setUser] = useState([]);
@@ -51,12 +54,23 @@ export default function CustomerDetailScreen({ navigation, route }) {
 
   async function loadData() {
     await api
-      .get('/users/' + route.params?.userId)
+      .get('/users/' + route.params?.userId, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
       .then((response) => {
         setUser(response.data);
         setOriginalUser(response.data);
       })
-      .catch((error) => alert(error.message));
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
 
     setLoading(false);
   }
@@ -70,21 +84,46 @@ export default function CustomerDetailScreen({ navigation, route }) {
 
   async function ApiDelete() {
     setLoading(true);
-    await api.delete('/users/' + route.params?.userId).then(() => {
-      Alert.alert('Sucesso', 'Usuário deletado com sucesso!');
-      navigation.navigate('Home');
-    });
+    await api
+      .delete('/users/' + route.params?.userId, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
+      .then(() => {
+        Alert.alert('Sucesso', 'Usuário deletado com sucesso!');
+        navigation.navigate('Home');
+      })
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
   }
 
   async function ApiPut() {
     setLoading(true);
     await api
-      .put('/users/', user)
+      .put('/users/', user, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
       .then(() => {
         Alert.alert('Sucesso', 'Cliente atualizado com sucesso!');
         loadData();
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
   }
 
   function SaveChanges() {
@@ -97,6 +136,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
   return (
     <>
       <Header
+        leftClick={() => {cancel()}}
         navigation={navigation}
         name="Usuários"
         rightButton="ios-trash"
@@ -104,11 +144,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
       />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
-        <TextField
-          label="Id:"
-          value={user.id?.toString()}
-          editable={false}
-        />
+        <TextField label="Id:" value={user.id?.toString()} editable={false} />
         <TextField
           label="Nome:"
           value={user.name}
@@ -131,9 +167,9 @@ export default function CustomerDetailScreen({ navigation, route }) {
           <Text style={styles.title}>Cargo:</Text>
           <ModalDropdown
             style={styles.dropdown}
-            textStyle={{fontSize: 15}}
+            textStyle={{ fontSize: 15 }}
             dropdownStyle={styles.dropdownStyle}
-            dropdownTextStyle={{fontSize: 15}}
+            dropdownTextStyle={{ fontSize: 15 }}
             options={['Motoboy', 'Gerente']}
             defaultValue={user.authLevel == 1 ? 'Motoboy' : 'Gerente'}
             onSelect={(index) =>
@@ -152,16 +188,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 15,
+    paddingHorizontal: 20
   },
   field: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     marginVertical: 10,
-    marginHorizontal: 20,
   },
   title: {
     fontSize: 16,
-    marginBottom: 5
+    marginBottom: 5,
   },
   dropdown: {
     backgroundColor: '#fff',
@@ -169,11 +205,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderColor: '#cccccc',
     borderWidth: 1,
-    borderRadius: 5
+    borderRadius: 5,
   },
   dropdownStyle: {
     marginTop: -20,
     left: 0,
-    right: 30
-  }
+    right: 30,
+  },
 });

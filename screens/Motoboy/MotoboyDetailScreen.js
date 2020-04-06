@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { TextInput } from 'react-native';
-import { Text, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import Axios from 'axios';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
 import TextField from '../../components/TextField'; 
 import api from '../../services/api';
+
+const CancelToken = Axios.CancelToken;
+let cancel;
+
 
 export default function MotoboyDetailScreen({ navigation, route }) {
   const [user, setUser] = useState([]);
@@ -19,18 +22,29 @@ export default function MotoboyDetailScreen({ navigation, route }) {
 
   async function loadData() {
     await api
-      .get('/users/' + route.params?.userId)
+      .get('/users/' + route.params?.userId, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
       .then((response) => {
         setUser(response.data);
       })
-      .catch((error) => alert(error.message));
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
 
     setLoading(false);
   }
 
   return (
     <>
-      <Header navigation={navigation} name="Motoboys" />
+      <Header leftClick={() => {cancel()}} navigation={navigation} name="Motoboys" />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
         <TextField

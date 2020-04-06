@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
-import { TextInput } from 'react-native';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import ModalDropdown from 'react-native-modal-dropdown';
+import Axios from 'axios';
 
 import Header from '../../components/Header';
 import api from '../../services/api';
 import LoadingScreen from '../../components/LoadingScreen';
 import SaveButton from '../../components/SaveButton';
 import TextField from '../../components/TextField';
+
+const CancelToken = Axios.CancelToken;
+let cancel;
 
 export default function CustomerNewScreen({ navigation }) {
   const [user, setUser] = useState({
@@ -29,20 +32,34 @@ export default function CustomerNewScreen({ navigation }) {
   async function PostCreate() {
     setLoading(true);
     await api
-      .post('/users', user)
+      .post('/users', user, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
       .then(() => {
         Alert.alert('Sucesso', 'Cliente criado com sucesso!');
         navigation.navigate('Home');
       })
       .catch((error) => {
-        Alert.alert('Erro', error.message);
-        setLoading(false);
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
       });
   }
 
   return (
     <>
-      <Header navigation={navigation} name="Usuários" />
+      <Header
+        leftClick={() => {
+          cancel();
+        }}
+        navigation={navigation}
+        name="Usuários"
+      />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
         <TextField
@@ -67,9 +84,9 @@ export default function CustomerNewScreen({ navigation }) {
           <Text style={styles.title}>Cargo:</Text>
           <ModalDropdown
             style={styles.dropdown}
-            textStyle={{fontSize: 15}}
+            textStyle={{ fontSize: 15 }}
             dropdownStyle={styles.dropdownStyle}
-            dropdownTextStyle={{fontSize: 15}}
+            dropdownTextStyle={{ fontSize: 15 }}
             options={['Motoboy', 'Gerente']}
             defaultValue={'Motoboy'}
             onSelect={(index) =>
@@ -102,7 +119,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    marginBottom: 5
+    marginBottom: 5,
   },
   dropdown: {
     backgroundColor: '#fff',
@@ -110,11 +127,11 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderColor: '#cccccc',
     borderWidth: 1,
-    borderRadius: 5
+    borderRadius: 5,
   },
   dropdownStyle: {
     marginTop: -20,
     left: 0,
-    right: 30
-  }
+    right: 30,
+  },
 });

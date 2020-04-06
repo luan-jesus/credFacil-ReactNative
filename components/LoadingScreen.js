@@ -8,7 +8,7 @@ import {
 
 export default function LoadingScreen({ loading }) {
   return (
-    <>{loading ? <View style={styles.loadingScreen}><ActivityIndicator size="large" color="#ff9538" /></View> : null}</>
+    <>{loading ? <View style={styles.loadingScreen}><ActivityIndicator size={54} color="#ff9538" /></View> : null}</>
   );
 }
 

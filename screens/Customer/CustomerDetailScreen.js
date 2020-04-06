@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
-import { TextInput } from 'react-native';
-import { Text, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Alert, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import Axios from 'axios';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
@@ -11,6 +10,8 @@ import LoanItem from '../../components/LoanItem';
 import TextField from '../../components/TextField';
 import api from '../../services/api';
 
+const CancelToken = Axios.CancelToken;
+let cancel;
 
 export default function CustomerDetailScreen({ navigation, route }) {
   const [customer, setCustomer] = useState([]);
@@ -24,70 +25,113 @@ export default function CustomerDetailScreen({ navigation, route }) {
   }, []);
 
   useEffect(() => {
-    if (customer.id && originalCustomer.id){
-      if (customer.name !== originalCustomer.name){
+    if (customer.id && originalCustomer.id) {
+      if (customer.name !== originalCustomer.name) {
         setIsEditMode(true);
       } else {
         setIsEditMode(false);
       }
     }
-  }, [customer, originalCustomer])
+  }, [customer, originalCustomer]);
 
   useEffect(() => {
     console.log(loans);
   }, [loans]);
 
   async function loadData() {
-    await api.get('/clientes/' + route.params?.customerId)
-      .then(response => {
+    await api
+      .get('/clientes/' + route.params?.customerId, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
+      .then((response) => {
         setCustomer(response.data.cliente);
         setOriginalCustomer(response.data.cliente);
         setLoans(response.data.emprestimos);
       })
-      .catch(error=> alert(error.message));
-      
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
+
     setLoading(false);
   }
 
-  function DeleteRecord(){
+  function DeleteRecord() {
     Alert.alert('Aviso', 'Deseja realmente deletar este registro?', [
-      {text: 'Cancel', onPress: () => {}, style: 'cancel'},
-      {text: 'OK', onPress: () => ApiDelete()}
+      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+      { text: 'OK', onPress: () => ApiDelete() },
     ]);
   }
 
-  async function ApiDelete(){
-    setLoading(true)
-    await api.delete('/clientes/' + route.params?.customerId)
+  async function ApiDelete() {
+    setLoading(true);
+    await api
+      .delete('/clientes/' + route.params?.customerId, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
       .then(() => {
         Alert.alert('Sucesso', 'Cliente deletado com sucesso!');
         navigation.navigate('Home');
       })
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
   }
 
   async function ApiPut() {
     setLoading(true);
-    await api.put('/clientes/', customer)
+    await api
+      .put('/clientes/', customer, {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
       .then(() => {
         Alert.alert('Sucesso', 'Cliente atualizado com sucesso!');
         loadData();
       })
-      .catch(error => console.log(error));
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          alert(error.message);
+        }
+      });
   }
 
   function SaveChanges() {
     Alert.alert('Aviso', 'Deseja salvar as alterações?', [
-      {text: 'Cancel', onPress: () => {}, style: 'cancel'},
-      {text: 'OK', onPress: () => ApiPut()}
+      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+      { text: 'OK', onPress: () => ApiPut() },
     ]);
   }
-
-  const emprestimo = JSON.parse('{"id": 1, "Cliente": "","valorEmprestimo": 2400.00, "valorPago": 1300.00, "numParcelas": 24, "numParcelasPagas": 13,"dataInicio": "2019-01-11T02:00:00.000Z","status": 1,"createdAt": "2020-04-03T17:14:33.262Z","updatedAt": "2020-04-03T17:14:33.262Z"}');
-
+  
   return (
     <>
-      <Header navigation={navigation} name='Clientes' rightButton='ios-trash' rightClick={() => DeleteRecord()}/>
-      <LoadingScreen loading={loading}/>
+      <Header
+        leftClick={() => {
+          cancel();
+        }}
+        navigation={navigation}
+        name="Clientes"
+        rightButton="ios-trash"
+        rightClick={() => DeleteRecord()}
+      />
+      <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
         <TextField
           label="Id:"
@@ -98,23 +142,15 @@ export default function CustomerDetailScreen({ navigation, route }) {
           label="Nome:"
           value={customer.name}
           editable={true}
-          onChange={text => setCustomer({ ...customer, name: text })}
+          onChange={(text) => setCustomer({ ...customer, name: text })}
         />
-        <TextField
-          label="Emprestimos ativos:"
-          value={'0'}
-          editable={false}
-        />
-        <TextField
-          label="Parcelas atrasadas:"
-          value={'0'}
-          editable={false}
-        />
+        <TextField label="Emprestimos ativos:" value={'0'} editable={false} />
+        <TextField label="Parcelas atrasadas:" value={'0'} editable={false} />
         <View style={styles.loans}>
-          {loans.map(loan => (
-            <LoanItem emprestimo={loan} key={loan.idEmprestimo}/>
+          <Text style={styles.title}>Emprestimos:</Text>
+          {loans.map((loan) => (
+            <LoanItem navigation={navigation} emprestimo={loan} key={loan.idEmprestimo} />
           ))}
-
         </View>
       </ScrollView>
       <SaveButton display={isEditMode} onClick={() => SaveChanges()} />
@@ -126,24 +162,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    paddingTop: 15
-  },
-  field: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 15,
-    marginHorizontal: 20,
-  },
-  textField: {
-    backgroundColor: '#dbdbdb',
-    width: 140,
-    textAlign: 'right',
-    borderColor: '#dbdbdb',
-    borderWidth: 1,
-    paddingHorizontal: 5
+    paddingTop: 15,
+    paddingHorizontal: 20
   },
   loans: {
-    margin: 5,
-    paddingHorizontal: 15,
-  }
+    marginTop: 5
+  },
+  title: {
+    fontSize: 16,
+    marginBottom: 5
+  },
 });

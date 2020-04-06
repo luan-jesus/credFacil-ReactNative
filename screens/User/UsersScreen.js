@@ -3,10 +3,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native';
 import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import Axios from 'axios';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
 import api from '../../services/api';
+
+const CancelToken = Axios.CancelToken;
+let cancel;
+
 
 export default function Users({ navigation }) {
   const [user, setUser] = useState([]);
@@ -15,9 +20,20 @@ export default function Users({ navigation }) {
   useEffect(() => {
     async function loadData() {
       await api
-        .get('/users')
+        .get('/users', {
+          cancelToken: new CancelToken(function executor(c) {
+            // An executor function receives a cancel function as a parameter
+            cancel = c;
+          }),
+        })
         .then((response) => setUser(...user, response.data))
-        .catch((error) => alert(error.message));
+        .catch((error) => {
+          if (Axios.isCancel(error)) {
+            console.log('Request canceled', error.message);
+          } else {
+            alert(error.message);
+          }
+        });
       setLoading(false);
     }
     loadData();
@@ -26,6 +42,7 @@ export default function Users({ navigation }) {
   return (
     <>
       <Header
+        leftClick={() => {cancel()}}
         navigation={navigation}
         name="Usuários"
         rightButton="md-add"

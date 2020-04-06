@@ -1,6 +1,6 @@
 import Axios from 'axios';
 
-Axios.defaults.timeout = 18000;
+Axios.defaults.timeout = 20000;
 const api = Axios.create({
   baseURL: 'http://192.168.0.2:5000'
 });
