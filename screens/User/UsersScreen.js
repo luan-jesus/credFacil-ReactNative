@@ -12,10 +12,22 @@ import api from '../../services/api';
 const CancelToken = Axios.CancelToken;
 let cancel;
 
-
 export default function Users({ navigation }) {
   const [user, setUser] = useState([]);
+  const [filteredUser, setFilteredUser] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  function updateSearch(text) {
+    var filtered = user.filter((value) => {
+      return value.name.toLowerCase().indexOf(text.toLowerCase()) !== -1;
+    });
+
+    setFilteredUser(filtered);
+  }
+
+  useEffect(() => {
+    setFilteredUser(user);
+  }, [user]);
 
   useEffect(() => {
     async function loadData() {
@@ -42,7 +54,9 @@ export default function Users({ navigation }) {
   return (
     <>
       <Header
-        leftClick={() => {cancel()}}
+        leftClick={() => {
+          if (cancel) cancel();
+        }}
         navigation={navigation}
         name="Usuários"
         rightButton="md-add"
@@ -50,10 +64,14 @@ export default function Users({ navigation }) {
       />
       <LoadingScreen loading={loading} />
       <View style={styles.filter}>
-        <TextInput style={styles.textFilter} placeholder="Nome"></TextInput>
+        <TextInput
+          style={styles.textFilter}
+          placeholder="Nome"
+          onChangeText={(text) => updateSearch(text)}
+        ></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        {user.map((val) => {
+        {filteredUser.map((val) => {
           return (
             <ItemList
               key={val.id}

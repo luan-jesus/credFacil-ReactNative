@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
-export default function TextField({ label, value, onChange, editable }) {
+export default function TextField({ label, value, onChange, editable, keyboardType }) {
 
   return (
     <View style={styles.field}>
@@ -11,6 +11,7 @@ export default function TextField({ label, value, onChange, editable }) {
         value={value}
         onChangeText={text => onChange(text)}
         editable={editable}
+        keyboardType={keyboardType ? keyboardType : 'default'}
       ></TextInput>
     </View>
   );

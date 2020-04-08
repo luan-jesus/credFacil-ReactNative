@@ -124,7 +124,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
     <>
       <Header
         leftClick={() => {
-          cancel();
+          if (cancel) cancel();
         }}
         navigation={navigation}
         name="Clientes"
@@ -145,7 +145,6 @@ export default function CustomerDetailScreen({ navigation, route }) {
           onChange={(text) => setCustomer({ ...customer, name: text })}
         />
         <TextField label="Emprestimos ativos:" value={'0'} editable={false} />
-        <TextField label="Parcelas atrasadas:" value={'0'} editable={false} />
         <View style={styles.loans}>
           <Text style={styles.title}>Emprestimos:</Text>
           {loans.map((loan) => (

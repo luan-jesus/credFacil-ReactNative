@@ -6,22 +6,31 @@ export default function LoanItem({ emprestimo, navigation }) {
     idCliente,
     idEmprestimo,
     Cliente,
-    valorEmprestimo,
+    valorAReceber,
     valorPago,
     numParcelas,
     numParcelasPagas,
     dataInicio,
-    pago,
+    status,
   } = emprestimo;
 
   function getStatus(status) {
     let x = '';
     switch (status) {
+      case -1:
+        x = 'Andamento';
+        break;
+      case 0:
+        x = 'Não Pago';
+        break;
       case 1:
         x = 'Pago';
         break;
-      case 0:
-        x = 'Andamento';
+      case 2:
+        x = 'Pago com alertas';
+        break;
+      case 3:
+        x = 'Pago com Atrasos';
         break;
     }
     return x;
@@ -32,19 +41,26 @@ export default function LoanItem({ emprestimo, navigation }) {
     return `${dd}/${mm}/${yy}`;
   };
 
-  var statusColor = '#e88f1c';
-
   function statusColor(status) {
-    let x = '000';
+    let x = '';
     switch (status) {
-      case 1:
-        x = '#000';
+      case -1:
+        x = '#f5f5f5';
         break;
       case 0:
-        x = '#e88f1c';
+        x = '#fdffa1';
+        break;
+      case 1:
+        x = '#f5f5f5';
+        break;
+      case 2:
+        x = '#fdffa1';
+        break;
+      case 3:
+        x = '#fdffa1';
         break;
     }
-    return x;
+    return x
   }
 
   return (
@@ -54,19 +70,29 @@ export default function LoanItem({ emprestimo, navigation }) {
         navigation.navigate('LoanDetailScreen', { customerId: idCliente, loanId: idEmprestimo })
       }}
     >
-      {Cliente ? <Text style={styles.header}>{Cliente}</Text> : null}
-      <View style={styles.card}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: 16 }}>
-            Emprestimo:{' '}
-            <Text style={{ fontWeight: 'normal' }}>{idEmprestimo}</Text>
-          </Text>
-          <Text style={{ fontSize: 16 }}>
-            Status: <Text style={{}}>{getStatus(pago)}</Text>
-          </Text>
-        </View>
+      <View style={styles.header}>{Cliente ? (<Text style={styles.headerText}>{Cliente}</Text>) : (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={styles.headerText}>
+              Emprestimo:  {idEmprestimo}
+            </Text>
+            <Text style={styles.headerText}>
+              {getStatus(status)}
+            </Text>
+          </View>
+        )}</View>
+      <View style={[styles.card, {backgroundColor: statusColor(status)}]}>
+        {Cliente ? (
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={{ fontSize: 16 }}>
+              Emprestimo:  {idEmprestimo}
+            </Text>
+            <Text style={{ fontSize: 16 }}>
+              <Text style={{}}>{getStatus(status)}</Text>
+            </Text>
+          </View>
+        ) : null}
         <Text style={{ marginBottom: 10 }}>
-          Data:{' '}
+          <Text style={{ fontWeight: 'bold' }}>Inicio:{' '}</Text>
           <Text style={{ fontWeight: 'normal' }}>
             {changeDateFormatTo(dataInicio)}
           </Text>
@@ -75,7 +101,7 @@ export default function LoanItem({ emprestimo, navigation }) {
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
             Total:{' '}
             <Text style={{ fontWeight: 'normal' }}>
-              R${valorEmprestimo.toFixed(2).replace('.', ',')}
+              R${valorAReceber.toFixed(2).replace('.', ',')}
             </Text>
           </Text>
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
@@ -94,21 +120,6 @@ export default function LoanItem({ emprestimo, navigation }) {
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
             Pagas:{' '}
             <Text style={{ fontWeight: 'normal' }}>{numParcelasPagas}</Text>
-          </Text>
-        </View>
-
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
-            Restante:{' '}
-            <Text style={{ fontWeight: 'normal' }}>
-              R${(valorEmprestimo - valorPago).toFixed(2).replace('.', ',')}
-            </Text>
-          </Text>
-          <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
-            Restantes:{' '}
-            <Text style={{ fontWeight: 'normal' }}>
-              {numParcelas - numParcelasPagas}
-            </Text>
           </Text>
         </View>
       </View>
@@ -137,14 +148,16 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingVertical: 5,
-    fontSize: 18,
     paddingHorizontal: 10,
     textAlign: 'left',
     backgroundColor: '#ff9538',
+  },
+  headerText: {
     color: '#fff',
-    marginBottom: 3,
+    fontSize: 17,
   },
   card: {
+    paddingTop: 3,
     paddingHorizontal: 10,
     paddingBottom: 10,
   },

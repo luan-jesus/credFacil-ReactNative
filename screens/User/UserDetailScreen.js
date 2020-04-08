@@ -136,7 +136,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
   return (
     <>
       <Header
-        leftClick={() => {cancel()}}
+        leftClick={() => {if (cancel) cancel();}}
         navigation={navigation}
         name="Usuários"
         rightButton="ios-trash"

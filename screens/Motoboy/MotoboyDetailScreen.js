@@ -44,7 +44,7 @@ export default function MotoboyDetailScreen({ navigation, route }) {
 
   return (
     <>
-      <Header leftClick={() => {cancel()}} navigation={navigation} name="Motoboys" />
+      <Header leftClick={() => {if (cancel) cancel();}} navigation={navigation} name="Motoboys" />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
         <TextField
@@ -72,5 +72,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 15,
+    paddingHorizontal: 20
   },
 });

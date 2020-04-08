@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native';
-import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Axios from 'axios';
 
@@ -15,12 +14,25 @@ let cancel;
 
 export default function Loans({ navigation }) {
   const [loans, setLoans] = useState([]);
+  const [filteredLoans, seFilteredtLoans] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  function updateSearch(text) {
+    var filtered = loans.filter((loan) => {
+      return loan.Cliente.toLowerCase().indexOf(text.toLowerCase()) !== -1;
+    });
+
+    seFilteredtLoans(filtered);
+  }
+  
+  useEffect(() => {
+    seFilteredtLoans(loans);
+  }, [loans]);
 
   useEffect(() => {
     async function loadData() {
       await api
-        .get('/emprestimos', {
+        .get('/emprestimos/andamento', {
           cancelToken: new CancelToken(function executor(c) {
             // An executor function receives a cancel function as a parameter
             cancel = c;
@@ -43,19 +55,19 @@ export default function Loans({ navigation }) {
     <>
       <Header
         leftClick={() => {
-          cancel();
+          if (cancel) cancel();
         }}
         navigation={navigation}
-        name="Emprestimos"
+        name="Emprestimos Ativos"
         rightButton="md-add"
-        rightClick={() => navigation.navigate('CustomerNewScreen')}
+        rightClick={() => navigation.navigate('LoanNewScreen')}
       />
       <LoadingScreen loading={loading} />
       <View style={styles.filter}>
-        <TextInput style={styles.textFilter} placeholder="Cliente"></TextInput>
+        <TextInput style={styles.textFilter} placeholder="Cliente" onChangeText={(text) => updateSearch(text)}></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        {loans.map((loan) => (
+        {filteredLoans.map((loan) => (
           <LoanItem navigation={navigation} emprestimo={loan} key={Math.random()} />
         ))}
       </ScrollView>

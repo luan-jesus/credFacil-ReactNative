@@ -1,39 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native';
-import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Axios from 'axios';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
+import LoanItem from '../../components/LoanItem';
 import api from '../../services/api';
 
 const CancelToken = Axios.CancelToken;
 let cancel;
 
-export default function Customers({ navigation }) {
-  const [customer, setCustomer] = useState([]);
-  const [customerContacts, setCustomerContacts] = useState([]);
+export default function Loans({ navigation }) {
+  const [loans, setLoans] = useState([]);
+  const [filteredLoans, seFilteredtLoans] = useState([]);
   const [loading, setLoading] = useState(true);
 
   function updateSearch(text) {
-    var filtered = customer.filter((contact) => {
-      return contact.name.toLowerCase().indexOf(text.toLowerCase()) !== -1;
+    var filtered = loans.filter((loan) => {
+      return loan.Cliente.toLowerCase().indexOf(text.toLowerCase()) !== -1;
     });
 
-    setCustomerContacts(filtered);
+    seFilteredtLoans(filtered);
   }
+  
+  useEffect(() => {
+    seFilteredtLoans(loans);
+  }, [loans]);
+
   useEffect(() => {
     async function loadData() {
       await api
-        .get('/clientes', {
+        .get('/emprestimos/historico', {
           cancelToken: new CancelToken(function executor(c) {
             // An executor function receives a cancel function as a parameter
             cancel = c;
           }),
         })
-        .then((response) => setCustomer(...customer, response.data))
+        .then((response) => setLoans(...loans, response.data))
         .catch((error) => {
           if (Axios.isCancel(error)) {
             console.log('Request canceled', error.message);
@@ -46,54 +51,27 @@ export default function Customers({ navigation }) {
     loadData();
   }, []);
 
-  useEffect(() => {
-    setCustomerContacts(customer);
-  }, [customer]);
-
   return (
     <>
       <Header
-        leftClick={() => {if (cancel) cancel();}}
+        leftClick={() => {
+          if (cancel) cancel();
+        }}
         navigation={navigation}
-        name="Clientes"
+        name="Histórico"
         rightButton="md-add"
-        rightClick={() => navigation.navigate('CustomerNewScreen')}
+        rightClick={() => navigation.navigate('LoanNewScreen')}
       />
       <LoadingScreen loading={loading} />
       <View style={styles.filter}>
-        <TextInput
-          style={styles.textFilter}
-          placeholder="Cliente"
-          onChangeText={(text) => updateSearch(text)}
-        ></TextInput>
+        <TextInput style={styles.textFilter} placeholder="Cliente" onChangeText={(text) => updateSearch(text)}></TextInput>
       </View>
       <ScrollView style={styles.CustomerList}>
-        {customerContacts.map((val) => {
-          return (
-            <ItemList
-              key={val.id}
-              name={val.name}
-              customerId={val.id}
-              navigation={navigation}
-            />
-          );
-        })}
+        {filteredLoans.map((loan) => (
+          <LoanItem navigation={navigation} emprestimo={loan} key={Math.random()} />
+        ))}
       </ScrollView>
     </>
-  );
-}
-
-function ItemList({ name, customerId, navigation }) {
-  return (
-    <TouchableOpacity
-      style={styles.itemList}
-      onPress={() =>
-        navigation.navigate('CustomerDetailScreen', { customerId: customerId })
-      }
-    >
-      <Text style={styles.itemName}>{name}</Text>
-      <Ionicons name="ios-arrow-round-forward" size={22} />
-    </TouchableOpacity>
   );
 }
 

@@ -53,7 +53,7 @@ export default function CustomerNewScreen({ navigation }) {
     <>
       <Header
         leftClick={() => {
-          cancel();
+          if (cancel) cancel();
         }}
         navigation={navigation}
         name="Clientes"
@@ -79,5 +79,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 15,
+    paddingHorizontal: 20
   },
 });

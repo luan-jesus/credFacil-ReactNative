@@ -29,7 +29,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
 
   const getDate = (date) => {
     if (date) {
-      const formatedDate = changeDateFormatTo(date)
+      const formatedDate = changeDateFormatTo(date);
       const dateObj = new Date(date);
       switch (dateObj.getDay()) {
         case 0:
@@ -49,6 +49,50 @@ export default function CustomerDetailScreen({ navigation, route }) {
       }
     }
   };
+
+  function statusColor(status) {
+    let x = '';
+    switch (status) {
+      case -1:
+        x = '#f5f5f5';
+        break;
+      case 0:
+        x = '#ffa1a1';
+        break;
+      case 1:
+        x = '#f5f5f5';
+        break;
+      case 2:
+        x = '#fdffa1';
+        break;
+      case 3:
+        x = '#fdffa1';
+        break;
+    }
+    return x;
+  }
+
+  function getStatus(status) {
+    let x = '';
+    switch (status) {
+      case -1:
+        x = 'Andamento';
+        break;
+      case 0:
+        x = 'Não Pago';
+        break;
+      case 1:
+        x = 'Pago';
+        break;
+      case 2:
+        x = 'Pago com alertas';
+        break;
+      case 3:
+        x = 'Pago com Atrasos';
+        break;
+    }
+    return x;
+  }
 
   useEffect(() => {
     loadData();
@@ -144,7 +188,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
     <>
       <Header
         leftClick={() => {
-          cancel();
+          if (cancel) cancel();
         }}
         navigation={navigation}
         name="Emprestimos"
@@ -161,7 +205,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
         />
         <TextField
           label="Status:"
-          value={loan.pago?.toString()}
+          value={getStatus(loan.status)}
           editable={false}
         />
         <TextField
@@ -169,26 +213,34 @@ export default function CustomerDetailScreen({ navigation, route }) {
           value={changeDateFormatTo(loan.dataInicio)}
           editable={false}
         />
-        <View style={{flexDirection: 'row'}}>
+        <View style={{ flexDirection: 'row' }}>
           <TextField
             label="Valor Recebido:"
-            value={loan.valorPago ? loan.valorPago?.toFixed(2).replace('.', ',') : '0,00'}
+            value={
+              loan.valorPago
+                ? loan.valorPago?.toFixed(2).replace('.', ',')
+                : '0,00'
+            }
             editable={false}
           />
-          <View style={{width: 20}}></View>
+          <View style={{ width: 20 }}></View>
           <TextField
-            label="Valor Emprestado:"
-            value={loan.valorEmprestimo ? loan.valorEmprestimo?.toFixed(2).replace('.', ',') : '0,00'}
+            label="Valor a Receber:"
+            value={
+              loan.valorEmprestimo
+                ? loan.valorAReceber?.toFixed(2).replace('.', ',')
+                : '0,00'
+            }
             editable={false}
           />
         </View>
-        <View style={{flexDirection: 'row'}}>
+        <View style={{ flexDirection: 'row' }}>
           <TextField
             label="Parcelas Pagas:"
             value={loan.numParcelasPagas?.toString()}
             editable={false}
           />
-          <View style={{width: 20}}></View>
+          <View style={{ width: 20 }}></View>
           <TextField
             label="Parcelas:"
             value={loan.numParcelas?.toString()}
@@ -198,21 +250,43 @@ export default function CustomerDetailScreen({ navigation, route }) {
         <View style={styles.parcels}>
           <Text style={styles.title}>Parcelas:</Text>
           {parcels.map((parcel) => (
-            <View key={parcel.parcelaNum} style={styles.parcelItem} >
+            <View key={parcel.parcelaNum} style={styles.parcelItem}>
               <View style={styles.header}>
-                <Text style={styles.headerText}>{parcel.parcelaNum} - {getDate(parcel.dataParcela)}</Text>
-                <Text style={[styles.headerText, {textAlign: 'right'}]}>R${parcel.valorParcela ? parcel.valorParcela?.toFixed(2).replace('.', ',') : '0,00'}</Text>
+                <Text style={styles.headerText}>
+                  {parcel.parcelaNum} - {getDate(parcel.dataParcela)}
+                </Text>
+                <Text style={[styles.headerText, { textAlign: 'right' }]}>
+                  R$
+                  {parcel.valorParcela
+                    ? parcel.valorParcela?.toFixed(2).replace('.', ',')
+                    : '0,00'}
+                </Text>
               </View>
-              <View style={styles.card}>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                  <Text style={styles.parcelText}>Pago: R${parcel.valorPago ? parcel.valorPago?.toFixed(2).replace('.', ',') : '0,00'}</Text>
-                  <Text style={styles.parcelText}>Valor: R${parcel.valorParcela ? parcel.valorParcela?.toFixed(2).replace('.', ',') : '0,00'}</Text>
-                </View>
-                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                  <Text style={styles.parcelText}>Cobrado: {parcel.cobrado}</Text>
-                  <Text style={styles.parcelText}>Status: Andamento</Text>
-                </View>
-                <Text style={styles.parcelText}>Quem recebeu: {parcel.idUserRecebeu}</Text>
+              <View style={[styles.card, {backgroundColor: statusColor(parcel.status)}]}>
+                {parcel.cobrado ? (
+                  <>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        justifyContent: 'space-between',
+                        marginVertical: 3,
+                      }}
+                    >
+                      <Text style={styles.parcelText}>
+                        <Text style={{fontStyle: 'italic'}}>Pago: </Text>R$
+                        {parcel.valorPago
+                          ? parcel.valorPago?.toFixed(2).replace('.', ',')
+                          : '0,00'}
+                      </Text>
+                      <Text style={styles.parcelText}>
+                        {getStatus(parcel.status)}
+                      </Text>
+                    </View>
+                    <Text style={[styles.parcelText, { marginTop: 3 }]}>
+                    <Text style={{fontStyle: 'italic'}}>Cobrado por: </Text>{parcel.idUserRecebeu}
+                    </Text>
+                  </>
+                ) : null}
               </View>
             </View>
           ))}
@@ -232,16 +306,15 @@ const styles = StyleSheet.create({
   },
   parcels: {
     marginTop: 5,
-    marginBottom: 20
+    marginBottom: 20,
   },
   title: {
     fontSize: 16,
-    marginBottom: 5
+    marginBottom: 5,
   },
   header: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    marginBottom: 3,
     flexDirection: 'row',
     justifyContent: 'space-between',
     backgroundColor: '#ff9538',
@@ -265,10 +338,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   card: {
+    paddingTop: 3,
     paddingHorizontal: 10,
     paddingBottom: 10,
   },
   parcelText: {
-    fontSize: 15
-  }
+    fontSize: 15,
+  },
 });

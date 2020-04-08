@@ -55,7 +55,7 @@ export default function CustomerNewScreen({ navigation }) {
     <>
       <Header
         leftClick={() => {
-          cancel();
+          if (cancel) cancel();
         }}
         navigation={navigation}
         name="Usuários"
@@ -110,12 +110,12 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     paddingTop: 15,
+    paddingHorizontal: 20
   },
   field: {
     flexDirection: 'column',
     justifyContent: 'space-between',
     marginVertical: 10,
-    marginHorizontal: 20,
   },
   title: {
     fontSize: 16,
@@ -124,7 +124,7 @@ const styles = StyleSheet.create({
   dropdown: {
     backgroundColor: '#fff',
     paddingHorizontal: 10,
-    paddingVertical: 5,
+    paddingVertical: 10,
     borderColor: '#cccccc',
     borderWidth: 1,
     borderRadius: 5,

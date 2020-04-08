@@ -33,7 +33,7 @@ export default function Home({ navigation }) {
           icon="md-time"
           label="Histórico de Emprestimos"
           onPress={() => {
-            // navigation.navigate('LoansScreen');
+            navigation.navigate('LoansHistScreen');
           }}
         />
 
