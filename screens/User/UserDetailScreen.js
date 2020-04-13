@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import ModalDropdown from 'react-native-modal-dropdown';
+import RNPickerSelect from 'react-native-picker-select';
 import Axios from 'axios';
 
 import Header from '../../components/Header';
@@ -68,7 +68,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
 
@@ -99,7 +99,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
   }
@@ -121,7 +121,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
   }
@@ -136,7 +136,9 @@ export default function CustomerDetailScreen({ navigation, route }) {
   return (
     <>
       <Header
-        leftClick={() => {if (cancel) cancel();}}
+        leftClick={() => {
+          if (cancel) cancel();
+        }}
         navigation={navigation}
         name="Usuários"
         rightButton="ios-trash"
@@ -165,16 +167,31 @@ export default function CustomerDetailScreen({ navigation, route }) {
         />
         <View style={styles.field}>
           <Text style={styles.title}>Cargo:</Text>
-          <ModalDropdown
-            style={styles.dropdown}
-            textStyle={{ fontSize: 15 }}
-            dropdownStyle={styles.dropdownStyle}
-            dropdownTextStyle={{ fontSize: 15 }}
-            options={['Motoboy', 'Gerente']}
-            defaultValue={user.authLevel == 1 ? 'Motoboy' : 'Gerente'}
-            onSelect={(index) =>
-              setUser({ ...user, authLevel: parseInt(index) + 1 })
-            }
+          <RNPickerSelect
+            onValueChange={(value) =>  setUser({ ...user, authLevel: value })}
+            value={user.authLevel}
+            style={{
+              inputAndroid: {
+                borderColor: '#000',
+                marginVertical: -4,
+              },
+              placeholder: {
+                fontSize: 15,
+                textAlign: 'left',
+                color: '#000'
+              },
+              viewContainer: {
+                backgroundColor: '#fff',
+                fontSize: 15,
+                textAlign: 'left',
+                borderColor: '#cccccc',
+                borderWidth: 1,
+                borderRadius: 5,
+                marginBottom: 10
+              }
+            }}
+            placeholder={{label:'Selecione um cargo'}}
+            items={[{label: "Motoboy", value: 1}, {label: "Gerente", value: 2}]}
           />
         </View>
       </ScrollView>

@@ -44,7 +44,7 @@ export default function CustomerNewScreen({ navigation }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
   }

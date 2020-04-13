@@ -7,7 +7,7 @@ import {
   Text,
   Alert
 } from 'react-native';
-import * as Font from 'expo-font';
+import { AsyncStorage } from 'react-native';
 
 import GeneralStatusBarColor from '../components/GeneralStatusBarColorStyles';
 import LoadingScreen from '../components/LoadingScreen';
@@ -17,16 +17,33 @@ export default function Login({ navigation }) {
   const [user, setUser] = useState({ username: '', password: '' });
   const [loading, setLoading] = useState(false);
 
+  _storeData = async (id) => {
+    try {
+      console.log(id);
+      await AsyncStorage.setItem('userId', id.toString());
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
+  };
+
   async function Login() {
     setLoading(true);
-
     await api.post('auth/login', user)
-      .then(() => navigation.navigate('Home'))
-      .catch(error => {
-        if (error.message === 'Request failed with status code 401'){
-          Alert.alert('Erro de autenticação', 'Usuário ou senha incorretos')
+      .then(async (auth) => {
+        console.log(auth);
+        await _storeData(auth.data.id);
+        if (auth.data.authLevel === 1) {
+          navigation.navigate('ParcelsScreen');
         } else {
-          Alert.alert('Erro', error.message);
+          navigation.navigate('Home');
+        }
+        
+      })
+      .catch(error => {
+        if (error.response.status === 401) {
+          Alert.alert("Falha de autenticação", "Credenciais inválidas")
+        } else {
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
       

@@ -26,7 +26,12 @@ export default function CustomerDetailScreen({ navigation, route }) {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => console.log(customers), [customers])
+  const changeDateFormatTo = (date) => {
+    if (date) {
+      const [dd, mm, yy] = date.split(/-/g);
+      return `${mm}/${dd}/${yy}`;
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -50,7 +55,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
           if (Axios.isCancel(error)) {
             console.log('Request canceled', error.message);
           } else {
-            alert(error.message);
+            Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
           }
         });
       setLoading(false);
@@ -58,12 +63,6 @@ export default function CustomerDetailScreen({ navigation, route }) {
     loadData();
   }, [])
 
-  const changeDateFormatTo = (date) => {
-    if (date) {
-      const [yy, mm, dd] = date.substring(0, 10).split(/-/g);
-      return `${dd}/${mm}/${yy}`;
-    }
-  };
 
   async function ApiPost() {
     setLoading(true);
@@ -74,14 +73,14 @@ export default function CustomerDetailScreen({ navigation, route }) {
         }),
       })
       .then(() => {
-        Alert.alert('Sucesso', 'Cliente criado com sucesso!');
+        Alert.alert('Sucesso', 'Emprestimo criado com sucesso!');
         navigation.navigate('Home');
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
   }
@@ -160,7 +159,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
               },
             }}
             onDateChange={(date) => {
-              setLoan({ ...loan, dataInicio: date });
+              setLoan({ ...loan, dataInicio: changeDateFormatTo(date) });
             }}
           />
         </View>

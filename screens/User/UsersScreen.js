@@ -29,25 +29,26 @@ export default function Users({ navigation }) {
     setFilteredUser(user);
   }, [user]);
 
+  async function loadData() {
+    await api
+      .get('/users', {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
+      .then((response) => setUser(...user, response.data))
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
+        }
+      });
+    setLoading(false);
+  }
+
   useEffect(() => {
-    async function loadData() {
-      await api
-        .get('/users', {
-          cancelToken: new CancelToken(function executor(c) {
-            // An executor function receives a cancel function as a parameter
-            cancel = c;
-          }),
-        })
-        .then((response) => setUser(...user, response.data))
-        .catch((error) => {
-          if (Axios.isCancel(error)) {
-            console.log('Request canceled', error.message);
-          } else {
-            alert(error.message);
-          }
-        });
-      setLoading(false);
-    }
     loadData();
   }, []);
 
@@ -98,7 +99,7 @@ function authName(authLevel) {
   }
 }
 
-function ItemList({ name, userId, authLevel, navigation }) {
+function ItemList({ name, userId, authLevel, navigation, refresh }) {
   return (
     <TouchableOpacity
       style={styles.itemList}

@@ -9,6 +9,10 @@ import { createStackNavigator, Assets } from '@react-navigation/stack';
 import Login from './screens/LoginScreen';
 import Home from './screens/HomeScreen';
 
+import ParcelsScreen from './screens/Parcel/ParcelsScreen';
+import ParcelDetailScreen from './screens/Parcel/ParcelDetailScreen';
+import ParcelBillScreen from './screens/Parcel/ParcelBillScreen';
+
 import Customers from './screens/Customer/CustomersScreen';
 import CustomerDetailScreen from './screens/Customer/CustomerDetailScreen';
 import CustomerNewScreen from './screens/Customer/CustomerNewScreen';
@@ -78,6 +82,9 @@ export default function App(props) {
           >
             <Stack.Screen name="Login" component={Login} />
             <Stack.Screen name="Home" component={Home} />
+            <Stack.Screen name="ParcelsScreen" component={ParcelsScreen} />
+            <Stack.Screen name="ParcelBillScreen" component={ParcelBillScreen} />
+            <Stack.Screen name="ParcelDetailScreen" component={ParcelDetailScreen} />
             <Stack.Screen name="Customers" component={Customers} />
             <Stack.Screen name="CustomerDetailScreen" component={CustomerDetailScreen}/>
             <Stack.Screen name="CustomerNewScreen" component={CustomerNewScreen}/>

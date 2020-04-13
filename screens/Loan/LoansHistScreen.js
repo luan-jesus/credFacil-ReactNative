@@ -19,7 +19,7 @@ export default function Loans({ navigation }) {
 
   function updateSearch(text) {
     var filtered = loans.filter((loan) => {
-      return loan.Cliente.toLowerCase().indexOf(text.toLowerCase()) !== -1;
+      return loan?.cliente?.name?.toLowerCase().indexOf(text.toLowerCase()) !== -1;
     });
 
     seFilteredtLoans(filtered);
@@ -43,7 +43,7 @@ export default function Loans({ navigation }) {
           if (Axios.isCancel(error)) {
             console.log('Request canceled', error.message);
           } else {
-            alert(error.message);
+            Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
           }
         });
       setLoading(false);

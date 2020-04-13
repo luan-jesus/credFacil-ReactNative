@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Alert, Text } from 'react-native';
+import { StyleSheet, View, Alert, Text, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Axios from 'axios';
 
 import Header from '../../components/Header';
 import LoadingScreen from '../../components/LoadingScreen';
 import SaveButton from '../../components/SaveButton';
-import LoanItem from '../../components/LoanItem';
 import TextField from '../../components/TextField';
 import api from '../../services/api';
 
@@ -18,7 +17,6 @@ export default function CustomerDetailScreen({ navigation, route }) {
   const [originalLoan, setOriginalLoan] = useState([]);
   const [parcels, setParcels] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isEditMode, setIsEditMode] = useState(false);
 
   const changeDateFormatTo = (date) => {
     if (date) {
@@ -85,10 +83,10 @@ export default function CustomerDetailScreen({ navigation, route }) {
         x = 'Pago';
         break;
       case 2:
-        x = 'Pago com alertas';
+        x = 'Pago com ressalvas';
         break;
       case 3:
-        x = 'Pago com Atrasos';
+        x = 'Pago com atrasos';
         break;
     }
     return x;
@@ -100,26 +98,25 @@ export default function CustomerDetailScreen({ navigation, route }) {
 
   async function loadData() {
     await api
-      .get(
-        '/emprestimos/' + route.params?.customerId + '/' + route.params?.loanId,
-        {
-          cancelToken: new CancelToken(function executor(c) {
-            // An executor function receives a cancel function as a parameter
-            cancel = c;
-          }),
-        }
-      )
+      .get('/emprestimos/' + route.params?.loanId, {
+        cancelToken: new CancelToken(function executor(c) {
+          cancel = c;
+        }),
+      })
       .then((response) => {
         console.log(response);
-        setLoan(response.data.emprestimo);
-        setOriginalLoan(response.data.emprestimo);
+        setLoan(response.data);
+        setOriginalLoan(response.data);
         setParcels(response.data.parcelas);
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert(
+            'Erro status: ' + error.response.status,
+            error.response.data.error
+          );
         }
       });
 
@@ -136,52 +133,25 @@ export default function CustomerDetailScreen({ navigation, route }) {
   async function ApiDelete() {
     setLoading(true);
     await api
-      .delete('/clientes/' + route.params?.loanId, {
+      .delete('/emprestimos/' + route.params?.loanId, {
         cancelToken: new CancelToken(function executor(c) {
-          // An executor function receives a cancel function as a parameter
           cancel = c;
         }),
       })
       .then(() => {
-        Alert.alert('Sucesso', 'Cliente deletado com sucesso!');
+        Alert.alert('Sucesso', 'Emprestimo deletado com sucesso!');
         navigation.navigate('Home');
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert(
+            'Erro status: ' + error.response.status,
+            error.response.data.error
+          );
         }
       });
-  }
-
-  async function ApiPut() {
-    setLoading(true);
-    await api
-      .put('/clientes/', customer, {
-        cancelToken: new CancelToken(function executor(c) {
-          // An executor function receives a cancel function as a parameter
-          cancel = c;
-        }),
-      })
-      .then(() => {
-        Alert.alert('Sucesso', 'Cliente atualizado com sucesso!');
-        loadData();
-      })
-      .catch((error) => {
-        if (Axios.isCancel(error)) {
-          console.log('Request canceled', error.message);
-        } else {
-          alert(error.message);
-        }
-      });
-  }
-
-  function SaveChanges() {
-    Alert.alert('Aviso', 'Deseja salvar as alterações?', [
-      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
-      { text: 'OK', onPress: () => ApiPut() },
-    ]);
   }
 
   return (
@@ -197,10 +167,14 @@ export default function CustomerDetailScreen({ navigation, route }) {
       />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
-        <TextField label="Cliente:" value={loan.name} editable={false} />
+        <TextField
+          label="Cliente:"
+          value={loan?.cliente?.name}
+          editable={false}
+        />
         <TextField
           label="Emprestimo:"
-          value={loan.idEmprestimo?.toString()}
+          value={loan.id?.toString()}
           editable={false}
         />
         <TextField
@@ -218,7 +192,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
             label="Valor Recebido:"
             value={
               loan.valorPago
-                ? loan.valorPago?.toFixed(2).replace('.', ',')
+                ? parseFloat(loan.valorPago)?.toFixed(2).replace('.', ',')
                 : '0,00'
             }
             editable={false}
@@ -228,7 +202,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
             label="Valor a Receber:"
             value={
               loan.valorEmprestimo
-                ? loan.valorAReceber?.toFixed(2).replace('.', ',')
+                ? parseFloat(loan.valorAReceber)?.toFixed(2).replace('.', ',')
                 : '0,00'
             }
             editable={false}
@@ -250,7 +224,13 @@ export default function CustomerDetailScreen({ navigation, route }) {
         <View style={styles.parcels}>
           <Text style={styles.title}>Parcelas:</Text>
           {parcels.map((parcel) => (
-            <View key={parcel.parcelaNum} style={styles.parcelItem}>
+            <TouchableOpacity 
+              key={parcel.parcelaNum} 
+              style={styles.parcelItem}
+              onPress={() =>
+                navigation.navigate('ParcelDetailScreen', { parcelId: parcel.id })
+              }
+            >
               <View style={styles.header}>
                 <Text style={styles.headerText}>
                   {parcel.parcelaNum} - {getDate(parcel.dataParcela)}
@@ -258,11 +238,18 @@ export default function CustomerDetailScreen({ navigation, route }) {
                 <Text style={[styles.headerText, { textAlign: 'right' }]}>
                   R$
                   {parcel.valorParcela
-                    ? parcel.valorParcela?.toFixed(2).replace('.', ',')
+                    ? parseFloat(parcel.valorParcela)
+                        ?.toFixed(2)
+                        .replace('.', ',')
                     : '0,00'}
                 </Text>
               </View>
-              <View style={[styles.card, {backgroundColor: statusColor(parcel.status)}]}>
+              <View
+                style={[
+                  styles.card,
+                  { backgroundColor: statusColor(parcel.status) },
+                ]}
+              >
                 {parcel.cobrado ? (
                   <>
                     <View
@@ -273,9 +260,11 @@ export default function CustomerDetailScreen({ navigation, route }) {
                       }}
                     >
                       <Text style={styles.parcelText}>
-                        <Text style={{fontStyle: 'italic'}}>Pago: </Text>R$
+                        <Text style={{ fontStyle: 'italic' }}>Pago: </Text>R$
                         {parcel.valorPago
-                          ? parcel.valorPago?.toFixed(2).replace('.', ',')
+                          ? parseFloat(parcel.valorPago)
+                              ?.toFixed(2)
+                              .replace('.', ',')
                           : '0,00'}
                       </Text>
                       <Text style={styles.parcelText}>
@@ -283,16 +272,16 @@ export default function CustomerDetailScreen({ navigation, route }) {
                       </Text>
                     </View>
                     <Text style={[styles.parcelText, { marginTop: 3 }]}>
-                    <Text style={{fontStyle: 'italic'}}>Cobrado por: </Text>{parcel.idUserRecebeu}
+                      <Text style={{ fontStyle: 'italic' }}>Cobrado por: </Text>
+                      {parcel?.user?.name}
                     </Text>
                   </>
                 ) : null}
               </View>
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       </ScrollView>
-      <SaveButton display={isEditMode} onClick={() => SaveChanges()} />
     </>
   );
 }

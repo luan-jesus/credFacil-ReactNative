@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity } from 'react-native';
 
-export default function SaveButton({ display, onClick }) {
+export default function SaveButton({ display, onClick, buttonText }) {
   function Press(click) {
     if (typeof click === 'function') {
       click();
@@ -10,7 +10,7 @@ export default function SaveButton({ display, onClick }) {
 
   return display ? (
     <TouchableOpacity style={styles.confirmButtom} onPress={() => Press(onClick)}>
-      <Text style={styles.confirmText}>Salvar alterações</Text>
+      <Text style={styles.confirmText}>{buttonText ? buttonText : "Salvar alterações"}</Text>
     </TouchableOpacity>
   ) : null;
 }

@@ -47,15 +47,15 @@ export default function CustomerDetailScreen({ navigation, route }) {
         }),
       })
       .then((response) => {
-        setCustomer(response.data.cliente);
-        setOriginalCustomer(response.data.cliente);
+        setCustomer(response.data);
+        setOriginalCustomer(response.data);
         setLoans(response.data.emprestimos);
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
 
@@ -86,7 +86,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
   }
@@ -108,7 +108,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          alert(error.message);
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
         }
       });
   }
@@ -144,11 +144,11 @@ export default function CustomerDetailScreen({ navigation, route }) {
           editable={true}
           onChange={(text) => setCustomer({ ...customer, name: text })}
         />
-        <TextField label="Emprestimos ativos:" value={'0'} editable={false} />
+        {/* <TextField label="Emprestimos ativos:" value={'0'} editable={false} /> */}
         <View style={styles.loans}>
           <Text style={styles.title}>Emprestimos:</Text>
           {loans.map((loan) => (
-            <LoanItem navigation={navigation} emprestimo={loan} key={loan.idEmprestimo} />
+            <LoanItem navigation={navigation} emprestimo={loan} key={loan.id} />
           ))}
         </View>
       </ScrollView>

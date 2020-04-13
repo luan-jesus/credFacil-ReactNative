@@ -3,9 +3,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 export default function LoanItem({ emprestimo, navigation }) {
   const {
-    idCliente,
-    idEmprestimo,
-    Cliente,
+    id,
+    cliente,
     valorAReceber,
     valorPago,
     numParcelas,
@@ -67,13 +66,13 @@ export default function LoanItem({ emprestimo, navigation }) {
     <TouchableOpacity 
       style={styles.loanItem} 
       onPress={() => {
-        navigation.navigate('LoanDetailScreen', { customerId: idCliente, loanId: idEmprestimo })
+        navigation.navigate('LoanDetailScreen', { loanId: id })
       }}
     >
-      <View style={styles.header}>{Cliente ? (<Text style={styles.headerText}>{Cliente}</Text>) : (
+      <View style={styles.header}>{cliente?.name ? (<Text style={styles.headerText}>{cliente?.name}</Text>) : (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={styles.headerText}>
-              Emprestimo:  {idEmprestimo}
+              Emprestimo:  {id}
             </Text>
             <Text style={styles.headerText}>
               {getStatus(status)}
@@ -81,10 +80,10 @@ export default function LoanItem({ emprestimo, navigation }) {
           </View>
         )}</View>
       <View style={[styles.card, {backgroundColor: statusColor(status)}]}>
-        {Cliente ? (
+        {cliente?.name ? (
           <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
             <Text style={{ fontSize: 16 }}>
-              Emprestimo:  {idEmprestimo}
+              Emprestimo:  {id}
             </Text>
             <Text style={{ fontSize: 16 }}>
               <Text style={{}}>{getStatus(status)}</Text>
@@ -101,7 +100,7 @@ export default function LoanItem({ emprestimo, navigation }) {
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
             Total:{' '}
             <Text style={{ fontWeight: 'normal' }}>
-              R${valorAReceber.toFixed(2).replace('.', ',')}
+              R${parseFloat(valorAReceber).toFixed(2).replace('.', ',')}
             </Text>
           </Text>
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
@@ -114,7 +113,7 @@ export default function LoanItem({ emprestimo, navigation }) {
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
             Pago:{' '}
             <Text style={{ fontWeight: 'normal' }}>
-              R${valorPago.toFixed(2).replace('.', ',')}
+              R${parseFloat(valorPago).toFixed(2).replace('.', ',')}
             </Text>
           </Text>
           <Text style={{ fontSize: 13, fontWeight: 'bold' }}>
