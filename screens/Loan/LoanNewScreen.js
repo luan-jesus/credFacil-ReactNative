@@ -28,7 +28,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
 
   const changeDateFormatTo = (date) => {
     if (date) {
-      const [dd, mm, yy] = date.split(/-/g);
+      const [dd, mm, yy] = date.substring(0,10).split(/-/g);
       return `${mm}/${dd}/${yy}`;
     }
   };
@@ -67,7 +67,13 @@ export default function CustomerDetailScreen({ navigation, route }) {
   async function ApiPost() {
     setLoading(true);
     await api
-      .post('/emprestimos', loan, {
+      .post('/emprestimos', {
+        idCliente: loan.idCliente,
+        valorEmprestimo: loan.valorEmprestimo,
+        valorAReceber: loan.valorAReceber,
+        numParcelas: loan.numParcelas,
+        dataInicio: changeDateFormatTo(loan.dataInicio),
+      }, {
         cancelToken: new CancelToken(function executor(c) {
           cancel = c;
         }),
@@ -159,7 +165,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
               },
             }}
             onDateChange={(date) => {
-              setLoan({ ...loan, dataInicio: changeDateFormatTo(date) });
+              setLoan({ ...loan, dataInicio: date });
             }}
           />
         </View>

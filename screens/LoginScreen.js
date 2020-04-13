@@ -40,6 +40,7 @@ export default function Login({ navigation }) {
         
       })
       .catch(error => {
+        console.log(error);
         if (error.response.status === 401) {
           Alert.alert("Falha de autenticação", "Credenciais inválidas")
         } else {
