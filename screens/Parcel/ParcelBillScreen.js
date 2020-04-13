@@ -78,7 +78,7 @@ export default function ParcelBillScreen({ navigation, route }) {
         })
       .then(() => {
         Alert.alert('Sucesso', 'Parcela recebida com sucesso!');
-        navigation.navigate('ParcelsScreen');
+        navigation.navigate('Login');
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {

@@ -97,7 +97,7 @@ function ItemList({ name, userId, receivedToday, navigation }) {
         <Text style={styles.itemName}>{name}</Text>
         <Text>
           Recebeu Hoje: R${' '}
-          {receivedToday ? receivedToday.toFixed(2).replace('.', ',') : '0,00'}{' '}
+          {receivedToday ? parseFloat(receivedToday).toFixed(2).replace('.', ',') : '0,00'}{' '}
         </Text>
       </View>
       <Ionicons name="ios-arrow-round-forward" size={22} />

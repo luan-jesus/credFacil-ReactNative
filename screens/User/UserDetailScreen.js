@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Text, StyleSheet, View, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import RNPickerSelect from 'react-native-picker-select';
+import { AsyncStorage } from 'react-native';
 import Axios from 'axios';
 
 import Header from '../../components/Header';
@@ -16,6 +17,7 @@ let cancel;
 export default function CustomerDetailScreen({ navigation, route }) {
   const [user, setUser] = useState([]);
   const [originalUser, setOriginalUser] = useState([]);
+  const [userId, setUserId] = useState(0);
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
 
@@ -53,6 +55,14 @@ export default function CustomerDetailScreen({ navigation, route }) {
   }, [user, originalUser]);
 
   async function loadData() {
+    try {
+      const loginId = await AsyncStorage.getItem('userId');
+      setUserId(parseInt(loginId));
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
+
+
     await api
       .get('/users/' + route.params?.userId, {
         cancelToken: new CancelToken(function executor(c) {
@@ -76,10 +86,14 @@ export default function CustomerDetailScreen({ navigation, route }) {
   }
 
   function DeleteRecord() {
-    Alert.alert('Aviso', 'Deseja realmente deletar este registro?', [
-      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
-      { text: 'OK', onPress: () => ApiDelete() },
-    ]);
+    if (userId == route.params?.userId) {
+      Alert.alert('Aviso', 'Não é possível excluir o usuário que esta logado')
+    } else {
+      Alert.alert('Aviso', 'Deseja realmente deletar este registro?', [
+        { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+        { text: 'OK', onPress: () => ApiDelete() },
+      ]);
+    }
   }
 
   async function ApiDelete() {
@@ -130,7 +144,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
     Alert.alert('Aviso', 'Deseja salvar as alterações?', [
       { text: 'Cancel', onPress: () => {}, style: 'cancel' },
       { text: 'OK', onPress: () => ApiPut() },
-    ]);
+      ]);
   }
 
   return (

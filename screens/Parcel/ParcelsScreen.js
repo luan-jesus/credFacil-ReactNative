@@ -19,7 +19,7 @@ export default function ParcelsScreen({ navigation }) {
   function updateSearch(text) {
     var filtered = parcels.filter((parcel) => {
       return (
-        parcel.emprestimo.cliente.name
+        parcel?.emprestimo?.cliente?.name
           .toLowerCase()
           .indexOf(text.toLowerCase()) !== -1
       );
@@ -89,18 +89,18 @@ export default function ParcelsScreen({ navigation }) {
       <ScrollView style={styles.CustomerList}>
         {filteredParcels.map((parcel) => (
           <TouchableOpacity
-            key={parcel.parcelaNum}
+            key={parcel?.parcelaNum}
             style={styles.parcelItem}
             onPress={() =>
-              navigation.navigate('ParcelBillScreen', { parcelId: parcel.id })
+              navigation.navigate('ParcelBillScreen', { parcelId: parcel?.id })
             }
           >
             <View style={styles.header}>
               <Text style={styles.headerText}>
-                {parcel.emprestimo.cliente.name}
+                {parcel?.emprestimo?.cliente?.name}
               </Text>
               <Text style={[styles.headerText, { textAlign: 'right' }]}>
-                Parcela: {parcel.parcelaNum}
+                Parcela: {parcel?.parcelaNum}
               </Text>
             </View>
             <View style={styles.card}>
@@ -108,8 +108,8 @@ export default function ParcelsScreen({ navigation }) {
                 <Text style={styles.cardLabel}>Valor a ser cobrado: </Text>
                 <Text style={[styles.cardLabel, { textAlign: 'right' }]}>
                   R$
-                  {parcel.valorParcela
-                    ? parseFloat(parcel.valorParcela)
+                  {parcel?.valorParcela
+                    ? parseFloat(parcel?.valorParcela)
                         ?.toFixed(2)
                         .replace('.', ',')
                     : '0,00'}

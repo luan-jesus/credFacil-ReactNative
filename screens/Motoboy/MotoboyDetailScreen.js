@@ -59,7 +59,7 @@ export default function MotoboyDetailScreen({ navigation, route }) {
         />
         <TextField
           label="Total recebido Hoje:"
-          value={user.totalRecebido ? user.totalRecebido?.toFixed(2).replace('.', ',') : '0,00'}
+          value={user?.receivedToday ? parseFloat(user?.receivedToday).toFixed(2).replace('.', ',') : '0,00'}
           editable={false}
         />
       </ScrollView>
