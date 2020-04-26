@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, } from 'react-native';
+import { StyleSheet, View, Text } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Axios from 'axios';
 
@@ -42,6 +42,36 @@ export default function MotoboyDetailScreen({ navigation, route }) {
     setLoading(false);
   }
 
+  const changeDateFormatTo = (date) => {
+    if (date) {
+      const [yy, mm, dd] = date.substring(0, 10).split(/-/g);
+      return `${dd}/${mm}/${yy}`;
+    }
+  };
+
+  const getDate = (date) => {
+    if (date) {
+      const formatedDate = changeDateFormatTo(date);
+      const dateObj = new Date(date);
+      switch (dateObj.getDay()) {
+        case 0:
+          return 'Dom ' + formatedDate;
+        case 1:
+          return 'Seg ' + formatedDate;
+        case 2:
+          return 'Ter ' + formatedDate;
+        case 3:
+          return 'Qua ' + formatedDate;
+        case 4:
+          return 'Qui ' + formatedDate;
+        case 5:
+          return 'Sex ' + formatedDate;
+        case 6:
+          return 'Sab ' + formatedDate;
+      }
+    }
+  };
+
   return (
     <>
       <Header leftClick={() => {if (cancel) cancel();}} navigation={navigation} name="Motoboys" />
@@ -62,6 +92,29 @@ export default function MotoboyDetailScreen({ navigation, route }) {
           value={user?.receivedToday ? parseFloat(user?.receivedToday).toFixed(2).replace('.', ',') : '0,00'}
           editable={false}
         />
+        <Text style={{fontSize: 16, marginBottom: 5}}>historico:</Text>
+        {user?.historico?.map(hist => (
+          <View style={styles.card} key={Math.random()}>
+            <View style={styles.header}>
+              <Text style={styles.headerText}>{hist.emprestimo.cliente.name}</Text>
+              <Text style={[styles.headerText, {textAlign: 'right', flex: 1}]}>
+                Recebido: R$ {parseFloat(hist.valor).toFixed(2).replace('.', ',')}
+              </Text>
+            </View>
+            <View style={{paddingTop: 3,paddingHorizontal: 10,paddingBottom: 10,}}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{fontStyle: 'italic'}}>Data: </Text>
+                <Text>{getDate(hist.data)}</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{fontStyle: 'italic'}}>Emprestimo: </Text>
+                <Text>{hist.emprestimo.id}</Text>
+                <Text style={{fontStyle: 'italic', flex: 1, textAlign: 'right'}}>Parcela: </Text>
+                <Text>{hist.parcelanum}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
       </ScrollView>
     </>
   );
@@ -73,5 +126,30 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     paddingTop: 15,
     paddingHorizontal: 20
+  },
+  card: {
+    borderBottomColor: 'gray',
+    marginVertical: 5,
+    marginHorizontal: 5,
+    backgroundColor: '#f5f5f5',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  header: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    backgroundColor: '#ff9538',
+  },
+  headerText: {
+    fontSize: 17,
+    color: '#fff',
   },
 });

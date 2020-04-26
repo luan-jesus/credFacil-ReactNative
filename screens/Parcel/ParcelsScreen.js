@@ -89,7 +89,7 @@ export default function ParcelsScreen({ navigation }) {
       <ScrollView style={styles.CustomerList}>
         {filteredParcels.map((parcel) => (
           <TouchableOpacity
-            key={parcel?.parcelaNum}
+            key={parcel?.id}
             style={styles.parcelItem}
             onPress={() =>
               navigation.navigate('ParcelBillScreen', { parcelId: parcel?.id })

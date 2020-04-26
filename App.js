@@ -17,6 +17,9 @@ import Customers from './screens/Customer/CustomersScreen';
 import CustomerDetailScreen from './screens/Customer/CustomerDetailScreen';
 import CustomerNewScreen from './screens/Customer/CustomerNewScreen';
 
+import RequestScreen from './screens/Request/RequestScreen';
+import RequestAcceptScreen from './screens/Request/RequestAcceptScreen';
+
 import LoansScreen from './screens/Loan/LoansScreen.js';
 import LoansHistScreen from './screens/Loan/LoansHistScreen.js';
 import LoanDetailScreen from './screens/Loan/LoanDetailScreen';
@@ -88,6 +91,8 @@ export default function App(props) {
             <Stack.Screen name="Customers" component={Customers} />
             <Stack.Screen name="CustomerDetailScreen" component={CustomerDetailScreen}/>
             <Stack.Screen name="CustomerNewScreen" component={CustomerNewScreen}/>
+            <Stack.Screen name="RequestScreen" component={RequestScreen}/>
+            <Stack.Screen name="RequestAcceptScreen" component={RequestAcceptScreen}/>
             <Stack.Screen name="LoansScreen" component={LoansScreen}/>
             <Stack.Screen name="LoansHistScreen" component={LoansHistScreen}/>
             <Stack.Screen name="LoanDetailScreen" component={LoanDetailScreen}/>

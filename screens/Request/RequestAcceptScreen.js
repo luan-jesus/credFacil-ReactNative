@@ -16,80 +16,75 @@ import api from '../../services/api';
 const CancelToken = Axios.CancelToken;
 let cancel;
 
-export default function CustomerDetailScreen({ navigation }) {
+export default function RequestAccept({ navigation, route }) {
   const [loan, setLoan] = useState({
     idCliente: 0,
     valorEmprestimo: 0,
     valorAReceber: 0,
     numParcelas: 0,
-    dataInicio: new Date().getDate() + "-" + (new Date().getMonth() + 1) + "-" + new Date().getFullYear(),
+    dataInicio:
+      new Date().getDate() +
+      '-' +
+      (new Date().getMonth() + 1) +
+      '-' +
+      new Date().getFullYear(),
   });
-  const [customers, setCustomers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [weekDay, setWeekDay] = useState({
-    "0": false,
-    "1": false,
-    "2": false,
-    "3": false,
-    "4": false,
-    "5": false,
-    "6": false,
+    '0': false,
+    '1': false,
+    '2': false,
+    '3': false,
+    '4': false,
+    '5': false,
+    '6': false,
   });
 
   const changeDateFormatTo = (date) => {
     if (date) {
-      const [dd, mm, yy] = date.substring(0,10).split(/-/g);
+      const [dd, mm, yy] = date.substring(0, 10).split(/-/g);
       return `${mm}/${dd}/${yy}`;
     }
   };
 
-  useEffect(() => {
-    async function loadData() {
-      await api
-        .get('/clientes', {
-          cancelToken: new CancelToken(function executor(c) {
-            cancel = c;
-          }),
-        })
-        .then((response) => {
-          var customerArray = [];
-          response.data.map(customer => {
-            customerArray.push({
-              label: customer.name,
-              value: customer.id
-            });
-          });
-          setCustomers(customerArray);
-        })
-        .catch((error) => {
-          if (Axios.isCancel(error)) {
-            console.log('Request canceled', error.message);
-          } else {
-            Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
-          }
-        });
-      setLoading(false);
-    }
-    loadData();
-  }, [])
-
-
   async function ApiPost() {
     setLoading(true);
+
     await api
-      .post('/emprestimos', {
-        idCliente: loan.idCliente,
-        valorEmprestimo: loan.valorEmprestimo,
-        valorAReceber: loan.valorAReceber,
-        numParcelas: loan.numParcelas,
-        dataInicio: changeDateFormatTo(loan.dataInicio),
-        frequencia: loan.frequencia,
-        diaSemana: weekDay
-      }, {
+      .delete('/emprestimos/' + route.params?.id, {
         cancelToken: new CancelToken(function executor(c) {
           cancel = c;
         }),
       })
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          Alert.alert(
+            'Erro status: ' + error.response.status,
+            error.response.data.error
+          );
+        }
+      });
+
+    await api
+      .post(
+        '/emprestimos',
+        {
+          idCliente: route.params.clienteId,
+          valorEmprestimo: route.params.valorEmprestimo,
+          valorAReceber: loan.valorAReceber,
+          numParcelas: loan.numParcelas,
+          dataInicio: changeDateFormatTo(loan.dataInicio),
+          frequencia: loan.frequencia,
+          diaSemana: weekDay,
+        },
+        {
+          cancelToken: new CancelToken(function executor(c) {
+            cancel = c;
+          }),
+        }
+      )
       .then(() => {
         Alert.alert('Sucesso', 'Emprestimo criado com sucesso!');
         navigation.navigate('Home');
@@ -98,7 +93,10 @@ export default function CustomerDetailScreen({ navigation }) {
         if (Axios.isCancel(error)) {
           console.log('Request canceled', error.message);
         } else {
-          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
+          Alert.alert(
+            'Erro status: ' + error.response.status,
+            error.response.data.error
+          );
         }
       });
   }
@@ -114,7 +112,15 @@ export default function CustomerDetailScreen({ navigation }) {
     if (loan.frequencia == 1) {
       return true;
     } else {
-      if (weekDay[0] || weekDay[1] || weekDay[2] || weekDay[3] || weekDay[4] || weekDay[5] || weekDay[6]) {
+      if (
+        weekDay[0] ||
+        weekDay[1] ||
+        weekDay[2] ||
+        weekDay[3] ||
+        weekDay[4] ||
+        weekDay[5] ||
+        weekDay[6]
+      ) {
         return true;
       } else {
         return false;
@@ -133,34 +139,11 @@ export default function CustomerDetailScreen({ navigation }) {
       />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
-        <View>
-          <Text style={styles.title}>Cliente:</Text>
-          <RNPickerSelect
-            onValueChange={(value) =>  setLoan({ ...loan, idCliente: value })}
-            style={{
-              inputAndroid: {
-                borderColor: '#000',
-                marginVertical: -4,
-              },
-              placeholder: {
-                fontSize: 15,
-                textAlign: 'left',
-                color: '#000'
-              },
-              viewContainer: {
-                backgroundColor: '#fff',
-                fontSize: 15,
-                textAlign: 'left',
-                borderColor: '#cccccc',
-                borderWidth: 1,
-                borderRadius: 5,
-                marginBottom: 10
-              }
-            }}
-            placeholder={{label:'Selecione um cliente'}}
-            items={customers}
-          />
-        </View>
+        <TextField
+          label="Cliente:"
+          value={route.params?.clienteName}
+          editable={false}
+        />
         <View>
           <Text style={styles.title}>Data Inicio:</Text>
           <DatePicker
@@ -185,7 +168,7 @@ export default function CustomerDetailScreen({ navigation }) {
               dateText: {
                 fontSize: 15,
                 textAlign: 'left',
-                color: '#000'
+                color: '#000',
               },
             }}
             onDateChange={(date) => {
@@ -195,15 +178,8 @@ export default function CustomerDetailScreen({ navigation }) {
         </View>
         <TextField
           label="Valor Emprestimo:"
-          value={loan.valorEmprestimo.toFixed(2).replace('.', ',')}
-          editable={true}
-          keyboardType="decimal-pad"
-          onChange={(text) => {
-            setLoan({
-              ...loan,
-              valorEmprestimo: parseFloat(text.replace(',', '')) / 100,
-            });
-          }}
+          value={parseFloat(route.params?.valorEmprestimo).toFixed(2).replace('.', ',')}
+          editable={false}
         />
         <TextField
           label="Valor a Receber:"
@@ -227,9 +203,9 @@ export default function CustomerDetailScreen({ navigation }) {
           />
         </View>
         <View>
-          <Text style={[styles.title, {marginTop: 5}]}>Frequencia:</Text>
+          <Text style={[styles.title, { marginTop: 5 }]}>Frequencia:</Text>
           <RNPickerSelect
-            onValueChange={(value) =>  setLoan({ ...loan, frequencia: value })}
+            onValueChange={(value) => setLoan({ ...loan, frequencia: value })}
             style={{
               inputAndroid: {
                 borderColor: '#000',
@@ -238,7 +214,7 @@ export default function CustomerDetailScreen({ navigation }) {
               placeholder: {
                 fontSize: 15,
                 textAlign: 'left',
-                color: '#000'
+                color: '#000',
               },
               viewContainer: {
                 backgroundColor: '#fff',
@@ -247,25 +223,26 @@ export default function CustomerDetailScreen({ navigation }) {
                 borderColor: '#cccccc',
                 borderWidth: 1,
                 borderRadius: 5,
-                marginBottom: 10
-              }
+                marginBottom: 10,
+              },
             }}
-            placeholder={{label:'Selecione a frequência'}}
-            items={[{label: 'Diário', value: 1}, {label: 'Semanal', value: 2}]}
+            placeholder={{ label: 'Selecione a frequência' }}
+            items={[
+              { label: 'Diário', value: 1 },
+              { label: 'Semanal', value: 2 },
+            ]}
           />
           <WeekDayPicker
             value={weekDay}
-            onChange={value => setWeekDay(value)}
+            onChange={(value) => setWeekDay(value)}
             display={loan.frequencia === 2}
           />
         </View>
       </ScrollView>
       <SaveButton
         display={
-          loan.valorEmprestimo &&
           loan.valorAReceber &&
           loan.numParcelas &&
-          loan.idCliente &&
           Frequencia()
         }
         onClick={() => SaveChanges()}

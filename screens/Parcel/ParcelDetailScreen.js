@@ -33,6 +33,7 @@ export default function ParcelBillScreen({ navigation, route }) {
   }, [cobrado]);
 
   useEffect(() => {
+    console.log(parseFloat(parcel?.valorParcela) + ' ' +  parseFloat(originalParcel?.valorParcela))
     if (
       parcel?.valorParcela &&
       parcel?.valorPago &&
@@ -42,9 +43,9 @@ export default function ParcelBillScreen({ navigation, route }) {
       originalParcel?.cobrado
       ) {
       if (
-        parcel.valorParcela !== originalParcel.valorParcela ||
-        parcel.valorPago !== originalParcel.valorPago ||
-        parcel.cobrado !== originalParcel.cobrado
+        parcel.valorParcela != originalParcel.valorParcela ||
+        parcel.valorPago != originalParcel.valorPago ||
+        parcel.cobrado != originalParcel.cobrado
         ) {
         setIsEditMode(true);
       } else {
@@ -119,10 +120,42 @@ export default function ParcelBillScreen({ navigation, route }) {
       });
   }
 
+  async function ApiDelete() {
+    setLoading(true);
+    await api
+      .delete('/parcelas/' + route.params?.parcelId, {
+        cancelToken: new CancelToken(function executor(c) {
+          cancel = c;
+        }),
+      })
+      .then(() => {
+        Alert.alert('Sucesso', 'Emprestimo deletado com sucesso!');
+        navigation.navigate('Home');
+      })
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          Alert.alert(
+            'Erro status: ' + error.response.status,
+            error.response.data.error
+          );
+          navigation.navigate('Home');
+        }
+      });
+  }
+
   function SaveChanges() {
     Alert.alert('Aviso', 'Deseja salvar as auterações?', [
       { text: 'Cancel', onPress: () => {}, style: 'cancel' },
       { text: 'OK', onPress: () => ApiPost() },
+    ]);
+  }
+
+  function DeleteRecord() {
+    Alert.alert('Aviso', 'Deseja realmente deletar esta parcela?', [
+      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+      { text: 'OK', onPress: () => ApiDelete() },
     ]);
   }
 
@@ -134,6 +167,8 @@ export default function ParcelBillScreen({ navigation, route }) {
         }}
         navigation={navigation}
         name="Editar parcela"
+        rightButton="ios-trash"
+        rightClick={() => DeleteRecord()}
       />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
@@ -203,7 +238,7 @@ export default function ParcelBillScreen({ navigation, route }) {
         </View>
       </ScrollView>
       <SaveButton
-        display={isEditMode || parcel?.cobrado !== originalParcel?.cobrado}
+        display={isEditMode || parcel?.cobrado !== originalParcel?.cobrado || parcel?.valorParcela != originalParcel?.valorParcela}
         onClick={() => SaveChanges()}
       />
     </>
