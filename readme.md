@@ -2,7 +2,7 @@
 
 Front-end Mobile desenvolvido em React-Native para a aplicação CredFacil.
 
-## Em funcionamento
+## Demo
 
 ![](sample.gif)
 
