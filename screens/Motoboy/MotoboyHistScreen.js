@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, View, Text, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Axios from 'axios';
 
@@ -12,7 +12,7 @@ const CancelToken = Axios.CancelToken;
 let cancel;
 
 
-export default function MotoboyDetailScreen({ navigation, route }) {
+export default function MotoboyHistScreen({ navigation, route }) {
   const [user, setUser] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,7 +22,11 @@ export default function MotoboyDetailScreen({ navigation, route }) {
 
   async function loadData() {
     await api
-      .get('/users/' + route.params?.userId, {
+      .post('/motoboy/' + route.params?.userId,
+      {
+        dataParcela: route.params?.dataParcela
+      },
+      {
         cancelToken: new CancelToken(function executor(c) {
           // An executor function receives a cancel function as a parameter
           cancel = c;
@@ -74,32 +78,46 @@ export default function MotoboyDetailScreen({ navigation, route }) {
 
   return (
     <>
-      <Header leftClick={() => {if (cancel) cancel();}} navigation={navigation} name="Motoboys" />
+      <Header leftClick={() => {if (cancel) cancel();}} navigation={navigation} name="Parcelas" />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
-        <TextField
-          label="Id:"
-          value={user.id?.toString()}
-          editable={false}
-        />
         <TextField
           label="Nome:"
           value={user?.name}
           editable={false}
         />
         <TextField
-          label="Total recebido Hoje:"
+          label="Data:"
+          value={changeDateFormatTo(route.params?.dataParcela)}
+          editable={false}
+        />
+        <TextField
+          label="Total:"
           value={user?.receivedToday ? parseFloat(user?.receivedToday).toFixed(2).replace('.', ',') : '0,00'}
           editable={false}
         />
         <Text style={{fontSize: 16, marginBottom: 5}}>historico:</Text>
         {user?.historico?.map(hist => (
-          <TouchableOpacity style={styles.card} key={Math.random()} onPress={() => navigation.navigate("MotoboyHistScreen", {userId: hist.userId, dataParcela: hist.date})}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
-              <Text style={{fontSize: 15}}>{changeDateFormatTo(hist.date)}</Text>
-              <Text style={{fontSize: 15}}>R$ {parseFloat(hist.valor).toFixed(2).replace('.', ',')}</Text>
+          <View style={styles.card} key={Math.random()}>
+            <View style={styles.header}>
+              <Text style={styles.headerText}>{hist.emprestimo.cliente.name}</Text>
+              <Text style={[styles.headerText, {textAlign: 'right', flex: 1}]}>
+                Recebido: R$ {parseFloat(hist.valor).toFixed(2).replace('.', ',')}
+              </Text>
             </View>
-          </TouchableOpacity>
+            <View style={{paddingTop: 3,paddingHorizontal: 10,paddingBottom: 10,}}>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{fontStyle: 'italic'}}>Data: </Text>
+                <Text>{changeDateFormatTo(hist.data)}</Text>
+              </View>
+              <View style={{flexDirection: 'row'}}>
+                <Text style={{fontStyle: 'italic'}}>Emprestimo: </Text>
+                <Text>{hist.emprestimo.id}</Text>
+                <Text style={{fontStyle: 'italic', flex: 1, textAlign: 'right'}}>Parcela: </Text>
+                <Text>{hist.parcelanum}</Text>
+              </View>
+            </View>
+          </View>
         ))}
       </ScrollView>
     </>
@@ -135,7 +153,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff9538',
   },
   headerText: {
-    fontSize: 17,
+    fontSize: 15,
     color: '#fff',
   },
 });

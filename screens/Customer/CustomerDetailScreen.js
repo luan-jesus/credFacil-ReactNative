@@ -26,7 +26,7 @@ export default function CustomerDetailScreen({ navigation, route }) {
 
   useEffect(() => {
     if (customer.id && originalCustomer.id) {
-      if (customer.name !== originalCustomer.name) {
+      if (customer.name !== originalCustomer.name || customer.username !== originalCustomer.username || customer.password !== originalCustomer.password) {
         setIsEditMode(true);
       } else {
         setIsEditMode(false);
@@ -143,6 +143,18 @@ export default function CustomerDetailScreen({ navigation, route }) {
           value={customer.name}
           editable={true}
           onChange={(text) => setCustomer({ ...customer, name: text })}
+        />
+        <TextField
+          label="Usuário:"
+          value={customer.username}
+          editable={true}
+          onChange={(text) => setCustomer({ ...customer, username: text })}
+        />
+        <TextField
+          label="Senha:"
+          value={customer.password}
+          editable={true}
+          onChange={(text) => setCustomer({ ...customer, password: text })}
         />
         {/* <TextField label="Emprestimos ativos:" value={'0'} editable={false} /> */}
         <View style={styles.loans}>

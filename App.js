@@ -27,6 +27,7 @@ import LoanNewScreen from './screens/Loan/LoanNewScreen';
 
 import MotoboysScreen from './screens/Motoboy/MotoboysScreen';
 import MotoboyDetailScreen from './screens/Motoboy/MotoboyDetailScreen';
+import MotoboyHistScreen from './screens/Motoboy/MotoboyHistScreen';
 
 import UsersScreen from './screens/User/UsersScreen';
 import UserDetailScreen from './screens/User/UserDetailScreen';
@@ -99,6 +100,7 @@ export default function App(props) {
             <Stack.Screen name="LoanNewScreen" component={LoanNewScreen}/>
             <Stack.Screen name="MotoboysScreen" component={MotoboysScreen}/>
             <Stack.Screen name="MotoboyDetailScreen" component={MotoboyDetailScreen}/>
+            <Stack.Screen name="MotoboyHistScreen" component={MotoboyHistScreen}/>
             <Stack.Screen name="UsersScreen" component={UsersScreen}/>
             <Stack.Screen name="UserDetailScreen" component={UserDetailScreen}/>
             <Stack.Screen name="UserNewScreen" component={UserNewScreen}/>

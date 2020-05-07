@@ -65,6 +65,16 @@ export default function CustomerNewScreen({ navigation }) {
           editable={true}
           onChange={(text) => setCustomer({ ...customer, name: text })}
         />
+        <TextField
+          label="Usuário:"
+          editable={true}
+          onChange={(text) => setCustomer({ ...customer, username: text })}
+        />
+        <TextField
+          label="Senha:"
+          editable={true}
+          onChange={(text) => setCustomer({ ...customer, password: text })}
+        />
       </ScrollView>
       <SaveButton
         display={customer.name != ''}
