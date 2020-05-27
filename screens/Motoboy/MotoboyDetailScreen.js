@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity, Alert } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import Axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import Axios from "axios";
 
-import Header from '../../components/Header';
-import LoadingScreen from '../../components/LoadingScreen';
-import TextField from '../../components/TextField'; 
-import api from '../../services/api';
+import Header from "../../components/Header";
+import LoadingScreen from "../../components/LoadingScreen";
+import TextField from "../../components/TextField";
+import api from "../../services/api";
 
 const CancelToken = Axios.CancelToken;
 let cancel;
-
 
 export default function MotoboyDetailScreen({ navigation, route }) {
   const [user, setUser] = useState([]);
@@ -22,7 +21,7 @@ export default function MotoboyDetailScreen({ navigation, route }) {
 
   async function loadData() {
     await api
-      .get('/users/' + route.params?.userId, {
+      .get("/users/" + route.params?.userId, {
         cancelToken: new CancelToken(function executor(c) {
           // An executor function receives a cancel function as a parameter
           cancel = c;
@@ -33,13 +32,50 @@ export default function MotoboyDetailScreen({ navigation, route }) {
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
-          console.log('Request canceled', error.message);
+          console.log("Request canceled", error.message);
         } else {
-          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
+          Alert.alert(
+            "Erro status: " + error.response.status,
+            error.response.data.error
+          );
         }
       });
 
     setLoading(false);
+  }
+
+  async function Receber() {
+    setLoading(true);
+
+    await api
+      .post('/motoboy/' + route.params?.userId + "/receberTudo",
+      {
+        dataParcela: route.params?.dataParcela
+      },
+      {
+        cancelToken: new CancelToken(function executor(c) {
+          // An executor function receives a cancel function as a parameter
+          cancel = c;
+        }),
+      })
+      .then((response) => {
+        navigation.navigate("Home");
+      })
+      .catch((error) => {
+        if (Axios.isCancel(error)) {
+          console.log('Request canceled', error.message);
+        } else {
+          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
+          setLoading(false);
+        }
+      });    
+  }
+
+  function SaveChanges() {
+    Alert.alert('Aviso', `Deseja receber ${parseFloat(user?.toReceive).toFixed(2).replace('.', ',')} do motoboy?`, [
+      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+      { text: 'OK', onPress: () => Receber() },
+    ]);
   }
 
   const changeDateFormatTo = (date) => {
@@ -55,52 +91,89 @@ export default function MotoboyDetailScreen({ navigation, route }) {
       const dateObj = new Date(date);
       switch (dateObj.getDay()) {
         case 0:
-          return 'Dom ' + formatedDate;
+          return "Dom " + formatedDate;
         case 1:
-          return 'Seg ' + formatedDate;
+          return "Seg " + formatedDate;
         case 2:
-          return 'Ter ' + formatedDate;
+          return "Ter " + formatedDate;
         case 3:
-          return 'Qua ' + formatedDate;
+          return "Qua " + formatedDate;
         case 4:
-          return 'Qui ' + formatedDate;
+          return "Qui " + formatedDate;
         case 5:
-          return 'Sex ' + formatedDate;
+          return "Sex " + formatedDate;
         case 6:
-          return 'Sab ' + formatedDate;
+          return "Sab " + formatedDate;
       }
     }
   };
 
   return (
     <>
-      <Header leftClick={() => {if (cancel) cancel();}} navigation={navigation} name="Motoboys" />
+      <Header
+        leftClick={() => {
+          if (cancel) cancel();
+        }}
+        navigation={navigation}
+        name="Motoboys"
+      />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
+        <TextField label="Id:" value={user.id?.toString()} editable={false} />
+        <TextField label="Nome:" value={user?.name} editable={false} />
         <TextField
-          label="Id:"
-          value={user.id?.toString()}
+          label="A receber do motoboy:"
+          value={
+            user?.toReceive
+              ? parseFloat(user?.toReceive).toFixed(2).replace(".", ",")
+              : "0,00"
+          }
           editable={false}
         />
-        <TextField
-          label="Nome:"
-          value={user?.name}
-          editable={false}
-        />
-        <TextField
-          label="Total recebido Hoje:"
-          value={user?.receivedToday ? parseFloat(user?.receivedToday).toFixed(2).replace('.', ',') : '0,00'}
-          editable={false}
-        />
-        <Text style={{fontSize: 16, marginBottom: 5}}>historico:</Text>
-        {user?.historico?.map(hist => (
-          <TouchableOpacity style={styles.card} key={Math.random()} onPress={() => navigation.navigate("MotoboyHistScreen", {userId: hist.userId, dataParcela: hist.date})}>
-            <View style={{flexDirection: 'row', justifyContent: 'space-between', padding: 10}}>
-              <Text style={{fontSize: 15}}>{changeDateFormatTo(hist.date)}</Text>
-              <Text style={{fontSize: 15}}>R$ {parseFloat(hist.valor).toFixed(2).replace('.', ',')}</Text>
+        <TouchableOpacity
+          style={[{ backgroundColor: user?.toReceive ? "#00910a" : "#aaaaaa"}, styles.confirmButtom]}
+          onPress={SaveChanges}
+          disabled={!user?.toReceive}
+        >
+          <Text style={styles.confirmText}>Receber tudo</Text>
+        </TouchableOpacity>
+
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>Com o motoboy:</Text>
+        {user?.historico?.map((hist) => (
+          <TouchableOpacity
+            style={styles.card}
+            key={Math.random()}
+            onPress={() =>
+              navigation.navigate("MotoboyReceiveScreen", {
+                userId: hist.userId,
+                dataParcela: hist.date,
+              })
+            }
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                padding: 10,
+              }}
+            >
+              <Text style={{ fontSize: 15 }}>
+                {changeDateFormatTo(hist.date)}
+              </Text>
+              <Text style={{ fontSize: 15 }}>
+                R$ {parseFloat(hist.valor).toFixed(2).replace(".", ",")}
+              </Text>
             </View>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          style={[{ backgroundColor: "#0b33c1", marginVertical: 25 }, styles.confirmButtom]}
+          onPress={() =>
+            navigation.navigate('MotoboyHistScreen', { userId: route.params?.userId })
+          }
+        >
+          <Text style={styles.confirmText}>Histórico</Text>
+        </TouchableOpacity>
       </ScrollView>
     </>
   );
@@ -109,16 +182,16 @@ export default function MotoboyDetailScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 15,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   card: {
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
     marginVertical: 5,
     marginHorizontal: 5,
-    backgroundColor: '#f5f5f5',
-    shadowColor: '#000',
+    backgroundColor: "#f5f5f5",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -130,12 +203,31 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#ff9538',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#ff9538",
   },
   headerText: {
     fontSize: 17,
-    color: '#fff',
+    color: "#fff",
+  },
+  confirmButtom: {
+    paddingVertical: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    zIndex: 9999,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    zIndex: 70,
+  },
+  confirmText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

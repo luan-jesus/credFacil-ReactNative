@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native';
-import { Text, StyleSheet, View, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, View, TouchableOpacity, Alert } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Axios from 'axios';
 
@@ -96,7 +96,7 @@ function ItemList({ name, userId, receivedToday, navigation }) {
       <View style={{ flexDirection: 'column' }}>
         <Text style={styles.itemName}>{name}</Text>
         <Text>
-          Recebeu Hoje: R${' '}
+          Esta com: R${' '}
           {receivedToday ? parseFloat(receivedToday).toFixed(2).replace('.', ',') : '0,00'}{' '}
         </Text>
       </View>

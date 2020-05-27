@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Text, Alert } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
-import Axios from 'axios';
+import React, { useState, useEffect } from "react";
+import { StyleSheet, View, Text, TouchableOpacity, Alert } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
+import Axios from "axios";
 
-import Header from '../../components/Header';
-import LoadingScreen from '../../components/LoadingScreen';
-import TextField from '../../components/TextField'; 
-import api from '../../services/api';
+import Header from "../../components/Header";
+import LoadingScreen from "../../components/LoadingScreen";
+import TextField from "../../components/TextField";
+import api from "../../services/api";
 
 const CancelToken = Axios.CancelToken;
 let cancel;
-
 
 export default function MotoboyHistScreen({ navigation, route }) {
   const [user, setUser] = useState([]);
@@ -22,11 +21,7 @@ export default function MotoboyHistScreen({ navigation, route }) {
 
   async function loadData() {
     await api
-      .post('/motoboy/' + route.params?.userId,
-      {
-        dataParcela: route.params?.dataParcela
-      },
-      {
+      .get("/users/hist/" + route.params?.userId, {
         cancelToken: new CancelToken(function executor(c) {
           // An executor function receives a cancel function as a parameter
           cancel = c;
@@ -37,9 +32,12 @@ export default function MotoboyHistScreen({ navigation, route }) {
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
-          console.log('Request canceled', error.message);
+          console.log("Request canceled", error.message);
         } else {
-          Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
+          Alert.alert(
+            "Erro status: " + error.response.status,
+            error.response.data.error
+          );
         }
       });
 
@@ -59,66 +57,66 @@ export default function MotoboyHistScreen({ navigation, route }) {
       const dateObj = new Date(date);
       switch (dateObj.getDay()) {
         case 0:
-          return 'Dom ' + formatedDate;
+          return "Dom " + formatedDate;
         case 1:
-          return 'Seg ' + formatedDate;
+          return "Seg " + formatedDate;
         case 2:
-          return 'Ter ' + formatedDate;
+          return "Ter " + formatedDate;
         case 3:
-          return 'Qua ' + formatedDate;
+          return "Qua " + formatedDate;
         case 4:
-          return 'Qui ' + formatedDate;
+          return "Qui " + formatedDate;
         case 5:
-          return 'Sex ' + formatedDate;
+          return "Sex " + formatedDate;
         case 6:
-          return 'Sab ' + formatedDate;
+          return "Sab " + formatedDate;
       }
     }
   };
 
   return (
     <>
-      <Header leftClick={() => {if (cancel) cancel();}} navigation={navigation} name="Parcelas" />
+      <Header
+        leftClick={() => {
+          if (cancel) cancel();
+        }}
+        navigation={navigation}
+        name="Histórico"
+      />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
-        <TextField
-          label="Nome:"
-          value={user?.name}
-          editable={false}
-        />
-        <TextField
-          label="Data:"
-          value={changeDateFormatTo(route.params?.dataParcela)}
-          editable={false}
-        />
-        <TextField
-          label="Total:"
-          value={user?.receivedToday ? parseFloat(user?.receivedToday).toFixed(2).replace('.', ',') : '0,00'}
-          editable={false}
-        />
-        <Text style={{fontSize: 16, marginBottom: 5}}>historico:</Text>
-        {user?.historico?.map(hist => (
-          <View style={styles.card} key={Math.random()}>
-            <View style={styles.header}>
-              <Text style={styles.headerText}>{hist.emprestimo.cliente.name}</Text>
-              <Text style={[styles.headerText, {textAlign: 'right', flex: 1}]}>
-                Recebido: R$ {parseFloat(hist.valor).toFixed(2).replace('.', ',')}
+        <TextField label="Id:" value={user.id?.toString()} editable={false} />
+        <TextField label="Nome:" value={user?.name} editable={false} />
+
+        <Text style={{ fontSize: 16, marginBottom: 5 }}>Histórico:</Text>
+        {user?.historico?.map((hist) => (
+          <TouchableOpacity
+            style={styles.card}
+            key={Math.random()}
+            onPress={() =>
+              navigation.navigate("MotoboyHistDetailScreen", {
+                userId: hist.userId,
+                dataParcela: hist.date,
+              })
+            }
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                padding: 10,
+              }}
+            >
+              <Text style={{ fontSize: 15 }}>
+                {changeDateFormatTo(hist.date)}
+              </Text>
+              <Text style={{ fontSize: 15 }}>
+                R$ {parseFloat(hist.valor).toFixed(2).replace(".", ",")}
               </Text>
             </View>
-            <View style={{paddingTop: 3,paddingHorizontal: 10,paddingBottom: 10,}}>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={{fontStyle: 'italic'}}>Data: </Text>
-                <Text>{changeDateFormatTo(hist.data)}</Text>
-              </View>
-              <View style={{flexDirection: 'row'}}>
-                <Text style={{fontStyle: 'italic'}}>Emprestimo: </Text>
-                <Text>{hist.emprestimo.id}</Text>
-                <Text style={{fontStyle: 'italic', flex: 1, textAlign: 'right'}}>Parcela: </Text>
-                <Text>{hist.parcelanum}</Text>
-              </View>
-            </View>
-          </View>
+          </TouchableOpacity>
         ))}
+        
       </ScrollView>
     </>
   );
@@ -127,16 +125,16 @@ export default function MotoboyHistScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 15,
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
   },
   card: {
-    borderBottomColor: 'gray',
+    borderBottomColor: "gray",
     marginVertical: 5,
     marginHorizontal: 5,
-    backgroundColor: '#f5f5f5',
-    shadowColor: '#000',
+    backgroundColor: "#f5f5f5",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -148,12 +146,31 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#ff9538',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#ff9538",
   },
   headerText: {
-    fontSize: 15,
-    color: '#fff',
+    fontSize: 17,
+    color: "#fff",
+  },
+  confirmButtom: {
+    paddingVertical: 14,
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    zIndex: 9999,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+    elevation: 3,
+    zIndex: 70,
+  },
+  confirmText: {
+    color: "#fff",
+    fontSize: 16,
   },
 });

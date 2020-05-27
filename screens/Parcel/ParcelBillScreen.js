@@ -1,102 +1,85 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, Alert, Text } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import React, { useState, useEffect } from "react";
+import { Ionicons } from "@expo/vector-icons";
+import { StyleSheet, View, Alert, Text, TouchableOpacity } from "react-native";
+import { ScrollView } from "react-native-gesture-handler";
 import { AsyncStorage } from 'react-native';
-import Axios from 'axios';
+import Axios from "axios";
 
-import Header from '../../components/Header';
-import LoadingScreen from '../../components/LoadingScreen';
-import SaveButton from '../../components/SaveButton';
-import TextField from '../../components/TextField';
-import api from '../../services/api';
+import Header from "../../components/Header";
+import LoadingScreen from "../../components/LoadingScreen";
+import BillParcel from "../../components/BillParcel";
+import TextField from "../../components/TextField";
+import api from "../../services/api";
 
 const CancelToken = Axios.CancelToken;
 let cancel;
 
-export default function ParcelBillScreen({ navigation, route }) {
-  const [parcel, setParcel] = useState({cobrado: true});
-  const [userId, setUserId] = useState(0);
+export default function LoanDetailScreen({ navigation, route }) {
+  const [loan, setLoan] = useState([]);
+  const [parcels, setParcels] = useState([]);
+  const [valorPago, setValorPago] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  const changeDateFormatTo = (date) => {
-    if (date) {
-      const [yy, mm, dd] = date.substring(0, 10).split(/-/g);
-      return `${dd}/${mm}/${yy}`;
-    }
-  };
-
   useEffect(() => {
-      loadData();
+    loadData();
   }, []);
 
   async function loadData() {
-    try {
-      const loginId = await AsyncStorage.getItem('userId');
-      setUserId(parseInt(loginId));
-    } catch (error) {
-      Alert.alert('Erro', error.message);
-    }
-
     await api
-      .get('/parcelas/' + route.params?.parcelId, {
+      .get("/emprestimos/" + route.params?.loanId, {
         cancelToken: new CancelToken(function executor(c) {
           cancel = c;
         }),
       })
       .then((response) => {
-        setParcel(response.data);
+        console.log(response.data);
+        setLoan(response.data);
+        setParcels(response.data.parcelas);
       })
       .catch((error) => {
         if (Axios.isCancel(error)) {
-          console.log('Request canceled', error.message);
+          console.log("Request canceled", error.message);
         } else {
           Alert.alert(
-            'Erro status: ' + error.response.status,
+            "Erro status: " + error.response.status,
             error.response.data.error
           );
         }
       });
+
     setLoading(false);
   }
 
-  async function ApiPost() {
-    setLoading(true);
-
-    await api
-      .post('/parcelas/' + route.params?.parcelId + '/receber', 
-        {
-          valorParcela: parcel.valorParcela,
-          valorPago: parcel.valorPago,
-          cobrado: true,
-          emprestimoId: parcel.emprestimo.id,
-          userId: userId
-        },
-        {
-          cancelToken: new CancelToken(function executor(c) {
-            cancel = c;
-          }),
-        })
-      .then(() => {
-        Alert.alert('Sucesso', 'Parcela recebida com sucesso!');
-        navigation.navigate('Login');
-      })
-      .catch((error) => {
-        if (Axios.isCancel(error)) {
-          console.log('Request canceled', error.message);
-        } else {
-          Alert.alert(
-            'Erro status: ' + error.response.status,
-            error.response.data.error
-          );
-        }
-      });
+  function SaveChanges() {
+    Alert.alert('Aviso', `Deseja receber ${valorPago.toFixed(2).replace(".", ",")} do emprestimo ${loan.id}?`, [
+      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
+      { text: 'OK', onPress: () => pagarParcela() },
+    ]);
   }
 
-  function SaveChanges() {
-    Alert.alert('Aviso', 'Deseja receber a parcela?', [
-      { text: 'Cancel', onPress: () => {}, style: 'cancel' },
-      { text: 'OK', onPress: () => ApiPost() },
-    ]);
+  async function pagarParcela() {
+
+    setLoading(true);
+
+    try {
+      const loginId = await AsyncStorage.getItem('userId');
+
+      await api.post("emprestimos/" + loan.id + "/pagar", {
+        valorPago,
+        userId: loginId
+      }).catch(error => {
+        Alert.alert('Erro status: ' + error.response.status, error.response.data.error);
+      })
+
+    } catch (error) {
+      Alert.alert('Erro', error.message);
+    }
+    
+    navigation.navigate("Login");
+  }
+
+  function pagarAtivo(valor, valorMax) {
+    return valor > 0 && valor <= valorMax;
   }
 
   return (
@@ -106,63 +89,74 @@ export default function ParcelBillScreen({ navigation, route }) {
           if (cancel) cancel();
         }}
         navigation={navigation}
-        name="Cobrar parcela"
+        name="Cobrar Emprestimo"
       />
       <LoadingScreen loading={loading} />
       <ScrollView style={styles.container}>
         <TextField
-          label="Emprestimo:"
-          value={parcel?.emprestimo?.id?.toString()}
-          editable={false}
-        />
-        <TextField
           label="Cliente:"
-          value={parcel?.emprestimo?.cliente?.name}
+          value={loan?.cliente?.name}
           editable={false}
         />
         <TextField
-          label="Parcela:"
-          value={parcel?.parcelaNum?.toString()}
+          label="Emprestimo:"
+          value={loan.id?.toString()}
           editable={false}
         />
-        <TextField
-          label="Data do pagamento:"
-          value={changeDateFormatTo(parcel?.dataParcela)}
-          editable={false}
-        />
-        <TextField
-          label="Valor da parcela:"
-          value={
-            parcel?.valorParcela
-              ? parseFloat(parcel?.valorParcela)?.toFixed(2).replace('.', ',')
-              : '0,00'
-          }
-          editable={false}
-        />
-        <TextField
-          label="Valor Pago:"
-          value={
-            parcel?.valorPago
-              ? parseFloat(parcel?.valorPago)?.toFixed(2).replace('.', ',')
-              : '0,00'
-          }
-          editable={true}
-          keyboardType="decimal-pad"
-          onChange={(text) => {
-            setParcel({
-              ...parcel,
-              valorPago: parseFloat(text.replace(',', '')) / 100,
-            });
-          }}
-        />
+        <View style={{ flexDirection: "row" }}>
+          <TextField
+            label="Valor a receber hoje:"
+            value={
+              loan.qtdAReceber
+                ? parseFloat(loan.qtdAReceber)?.toFixed(2).replace(".", ",")
+                : "0,00"
+            }
+            editable={false}
+          />
+          <View style={{ width: 20 }}></View>
+          <TextField
+            label="Parcelas acumuladas:"
+            value={loan.numParcelasAReceber + ""}
+            editable={false}
+          />
+        </View>
+        <View style={{ flexDirection: "row", alignItems: "flex-end" }}>
+          <TextField
+            label="Valor pago:"
+            value={valorPago.toFixed(2).replace(".", ",")}
+            editable={true}
+            keyboardType="decimal-pad"
+            onChange={(val) =>
+              setValorPago(parseFloat(val.replace(",", "")) / 100)
+            }
+          />
+          <TouchableOpacity
+            disabled={!pagarAtivo(valorPago, (parseFloat(loan?.valorAReceber) - parseFloat(loan?.valorPago)))}
+            style={{
+              paddingHorizontal: 10,
+              marginHorizontal: 5,
+              marginVertical: 10,
+            }}
+            onPress={SaveChanges}
+          >
+            <Ionicons
+              name="ios-checkmark-circle"
+              size={48}
+              color={
+                pagarAtivo(valorPago, (parseFloat(loan?.valorAReceber) - parseFloat(loan?.valorPago)))
+                  ? "#32a852"
+                  : "#c6c6c6"
+              }
+            />
+          </TouchableOpacity>
+        </View>
+        <View style={styles.parcels}>
+          <Text style={styles.title}>Parcelas:</Text>
+          {parcels.map((parcel) => (
+            <BillParcel parcel={parcel} key={parcel.parcelaNum} beforeUpdate={setLoading} afterUpdate={loadData} />
+          ))}
+        </View>
       </ScrollView>
-      <SaveButton
-        display={true}
-        onClick={() => {
-          SaveChanges();
-        }}
-        buttonText="Receber pagamento"
-      />
     </>
   );
 }
@@ -170,15 +164,49 @@ export default function ParcelBillScreen({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
     paddingTop: 15,
     paddingHorizontal: 20,
   },
-  loans: {
+  parcels: {
     marginTop: 5,
+    marginBottom: 20,
   },
   title: {
     fontSize: 16,
     marginBottom: 5,
+  },
+  header: {
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    backgroundColor: "#ff9538",
+  },
+  headerText: {
+    fontSize: 17,
+    color: "#fff",
+  },
+  parcelItem: {
+    borderBottomColor: "gray",
+    marginVertical: 5,
+    marginHorizontal: 5,
+    backgroundColor: "#f5f5f5",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
+    elevation: 2,
+  },
+  card: {
+    paddingTop: 3,
+    paddingHorizontal: 10,
+    paddingBottom: 10,
+  },
+  parcelText: {
+    fontSize: 15,
   },
 });

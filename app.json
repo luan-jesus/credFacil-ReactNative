@@ -28,7 +28,7 @@
     },
     "android": {
       "package": "com.phentasoftware.credfacil",
-      "versionCode": 2
+      "versionCode": 4
     }
   }
 }

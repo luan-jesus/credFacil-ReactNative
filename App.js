@@ -10,6 +10,7 @@ import Login from './screens/LoginScreen';
 import Home from './screens/HomeScreen';
 
 import ParcelsScreen from './screens/Parcel/ParcelsScreen';
+import ParcelHistScreen from './screens/Parcel/ParcelHistScreen';
 import ParcelDetailScreen from './screens/Parcel/ParcelDetailScreen';
 import ParcelBillScreen from './screens/Parcel/ParcelBillScreen';
 
@@ -28,6 +29,8 @@ import LoanNewScreen from './screens/Loan/LoanNewScreen';
 import MotoboysScreen from './screens/Motoboy/MotoboysScreen';
 import MotoboyDetailScreen from './screens/Motoboy/MotoboyDetailScreen';
 import MotoboyHistScreen from './screens/Motoboy/MotoboyHistScreen';
+import MotoboyReceiveScreen from './screens/Motoboy/MotoboyReceiveScreen';
+import MotoboyHistDetailScreen from './screens/Motoboy/MotoboyHistDetailScreen';
 
 import UsersScreen from './screens/User/UsersScreen';
 import UserDetailScreen from './screens/User/UserDetailScreen';
@@ -88,6 +91,7 @@ export default function App(props) {
             <Stack.Screen name="Home" component={Home} />
             <Stack.Screen name="ParcelsScreen" component={ParcelsScreen} />
             <Stack.Screen name="ParcelBillScreen" component={ParcelBillScreen} />
+            <Stack.Screen name="ParcelHistScreen" component={ParcelHistScreen} />
             <Stack.Screen name="ParcelDetailScreen" component={ParcelDetailScreen} />
             <Stack.Screen name="Customers" component={Customers} />
             <Stack.Screen name="CustomerDetailScreen" component={CustomerDetailScreen}/>
@@ -101,6 +105,8 @@ export default function App(props) {
             <Stack.Screen name="MotoboysScreen" component={MotoboysScreen}/>
             <Stack.Screen name="MotoboyDetailScreen" component={MotoboyDetailScreen}/>
             <Stack.Screen name="MotoboyHistScreen" component={MotoboyHistScreen}/>
+            <Stack.Screen name="MotoboyReceiveScreen" component={MotoboyReceiveScreen}/>
+            <Stack.Screen name="MotoboyHistDetailScreen" component={MotoboyHistDetailScreen}/>
             <Stack.Screen name="UsersScreen" component={UsersScreen}/>
             <Stack.Screen name="UserDetailScreen" component={UserDetailScreen}/>
             <Stack.Screen name="UserNewScreen" component={UserNewScreen}/>

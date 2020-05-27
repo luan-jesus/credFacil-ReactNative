@@ -12,7 +12,7 @@ import api from '../../services/api';
 const CancelToken = Axios.CancelToken;
 let cancel;
 
-export default function CustomerDetailScreen({ navigation, route }) {
+export default function LoanDetailScreen({ navigation, route }) {
   const [loan, setLoan] = useState([]);
   const [originalLoan, setOriginalLoan] = useState([]);
   const [parcels, setParcels] = useState([]);
