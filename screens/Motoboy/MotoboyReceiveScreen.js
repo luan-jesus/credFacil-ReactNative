@@ -118,7 +118,7 @@ export default function MotoboyHistScreen({ navigation, route }) {
         {user?.historico?.map(hist => (
           <View style={styles.card} key={Math.random()}>
             <View style={styles.header}>
-              <Text style={styles.headerText}>{hist.emprestimo.cliente.name}</Text>
+              <Text style={styles.headerText}>{hist?.emprestimo?.cliente?.name}</Text>
               <Text style={[styles.headerText, {textAlign: 'right', flex: 1}]}>
                 Recebido: R$ {parseFloat(hist.valor).toFixed(2).replace('.', ',')}
               </Text>
@@ -130,7 +130,7 @@ export default function MotoboyHistScreen({ navigation, route }) {
               </View>
               <View style={{flexDirection: 'row'}}>
                 <Text style={{fontStyle: 'italic'}}>Emprestimo: </Text>
-                <Text>{hist.emprestimo.id}</Text>
+                <Text>{hist?.emprestimo?.id}</Text>
                 <Text style={{fontStyle: 'italic', flex: 1, textAlign: 'right'}}>Parcela: </Text>
                 <Text>{hist.parcelanum}</Text>
               </View>

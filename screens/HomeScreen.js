@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { Ionicons } from '@expo/vector-icons';
 import { RectButton, ScrollView } from 'react-native-gesture-handler';
-import { Text, StyleSheet, View } from 'react-native';
+import { Text, StyleSheet, View, Alert } from 'react-native';
 import Axios from 'axios';
 
 import Header from '../components/Header';

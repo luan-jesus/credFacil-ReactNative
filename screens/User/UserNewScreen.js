@@ -39,7 +39,7 @@ export default function CustomerNewScreen({ navigation }) {
         }),
       })
       .then(() => {
-        Alert.alert('Sucesso', 'Cliente criado com sucesso!');
+        Alert.alert('Sucesso', 'Usuário criado com sucesso!');
         navigation.navigate('Home');
       })
       .catch((error) => {
