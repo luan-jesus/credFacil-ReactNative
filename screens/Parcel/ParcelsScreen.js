@@ -21,9 +21,7 @@ export default function ParcelsScreen({ navigation }) {
   function updateSearch(text) {
     var filtered = parcels?.emprestimos?.filter((parcel) => {
       return (
-        parcel?.emprestimos?.cliente?.name
-          .toLowerCase()
-          .indexOf(text.toLowerCase()) !== -1
+        parcel?.cliente?.name.toLowerCase().indexOf(text.toLowerCase()) !== -1
       );
     });
 
@@ -50,7 +48,9 @@ export default function ParcelsScreen({ navigation }) {
     loadData();
   }, []);
 
-  async function loadData() {
+  async function loadData(orderBy, sort) {
+    orderBy = orderBy || "cliente.name";
+    sort = sort || 'ASC';
     setLoading(true);
 
     try {
@@ -63,15 +63,19 @@ export default function ParcelsScreen({ navigation }) {
             // An executor function receives a cancel function as a parameter
             cancel = c;
           }),
+          params: {
+            orderBy: orderBy,
+            sort: sort,
+          },
         })
-        .then((response) => setParcels(...parcels, response.data))
+        .then((response) => setParcels(response.data))
         .catch((error) => {
           if (Axios.isCancel(error)) {
             console.log("Request canceled", error.message);
           } else {
             Alert.alert(
-              "Erro status: " + error.response.status,
-              error.response.data.error
+              "Erro status: " + error?.response?.status,
+              error?.response?.data?.error
             );
           }
         });
@@ -89,6 +93,23 @@ export default function ParcelsScreen({ navigation }) {
         }}
         navigation={navigation}
         name="Parcelas a cobrar"
+        rightButton="md-settings"
+        rightClick={() => {
+          Alert.alert("Ordenar", "Ordenar por", [
+            {
+              text: "Valor a Receber",
+              onPress: () => loadData('valorReceber', 'ASC'),
+            },
+            {
+              text: "Nome Z-A",
+              onPress: () => loadData('cliente.name', 'DESC'),
+            },
+            {
+              text: "Nome A-Z",
+              onPress: () => loadData('cliente.name', 'ASC'),
+            },
+          ]);
+        }}
       />
       <LoadingScreen loading={loading} />
       <View style={styles.filter}>
@@ -98,7 +119,10 @@ export default function ParcelsScreen({ navigation }) {
           onChangeText={(text) => updateSearch(text)}
         ></TextInput>
       </View>
-      <TouchableOpacity style={styles.receivedToday} onPress={() => navigation.navigate("ParcelHistScreen")}>
+      <TouchableOpacity
+        style={styles.receivedToday}
+        onPress={() => navigation.navigate("ParcelHistScreen")}
+      >
         <Text style={styles.receivedTodayText}>Recebido Hoje:</Text>
         <Text style={styles.receivedTodayText}>
           R${" "}
@@ -108,37 +132,39 @@ export default function ParcelsScreen({ navigation }) {
         </Text>
       </TouchableOpacity>
       <ScrollView style={styles.CustomerList}>
-        {filteredParcels?.map((parcel) => (
-          <TouchableOpacity
-            key={parcel?.id}
-            style={styles.parcelItem}
-            onPress={() =>
-              navigation.navigate("ParcelBillScreen", {
-                loanId: parcel?.id,
-              })
-            }
-          >
-            <View style={styles.header}>
-              <Text style={styles.headerText}>{parcel.cliente.name}</Text>
-            </View>
-            <View style={styles.card}>
-              <View style={{ flexDirection: "row", flex: 1 }}>
-                <Text style={styles.cardLabel}>A ser cobrado hoje: </Text>
-                <Text style={[styles.cardLabel, { textAlign: "right" }]}>
-                  R$
-                  {parcel.valorReceber
-                    ? parseFloat(parcel.valorReceber)
-                        ?.toFixed(2)
-                        .replace(".", ",")
-                    : "0,00"}
-                </Text>
-              </View>
-              <Text style={{ fontStyle: "italic" }}>
-                (Clique sobre o emprestimo para cobra-lo)
-              </Text>
-            </View>
-          </TouchableOpacity>
-        ))}
+        {filteredParcels
+          ? filteredParcels?.map((parcel) => (
+              <TouchableOpacity
+                key={parcel?.id}
+                style={styles.parcelItem}
+                onPress={() =>
+                  navigation.navigate("ParcelBillScreen", {
+                    loanId: parcel?.id,
+                  })
+                }
+              >
+                <View style={styles.header}>
+                  <Text style={styles.headerText}>{parcel.cliente.name}</Text>
+                </View>
+                <View style={styles.card}>
+                  <View style={{ flexDirection: "row", flex: 1 }}>
+                    <Text style={styles.cardLabel}>A ser cobrado hoje: </Text>
+                    <Text style={[styles.cardLabel, { textAlign: "right" }]}>
+                      R$
+                      {parcel.valorReceber
+                        ? parseFloat(parcel.valorReceber)
+                            ?.toFixed(2)
+                            .replace(".", ",")
+                        : "0,00"}
+                    </Text>
+                  </View>
+                  <Text style={{ fontStyle: "italic" }}>
+                    (Clique sobre o emprestimo para cobra-lo)
+                  </Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          : null}
       </ScrollView>
     </>
   );
